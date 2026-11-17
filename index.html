@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光と闇の工房 第1〜4章（本編試作 v0.8）</title>
+<style>
+  :root{
+    --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
+    --accent:#b8862f; --accent2:#5f9153; --dark:#2c3550;
+    --tabbg:#f3eedd; --chipbg:#f4efdc; --stripe:#fbf7ea; --stagebg:#f2e8cb; --sub:#8a7f63; --furnbg:#eef0f7;
+  }
+  body[data-theme="dark"]{
+    --ink:#ede6d0; --paper:#131828; --card:#1e2438; --line:#3d4468;
+    --accent:#d9a94f; --accent2:#8fae7d; --dark:#c9cfe4;
+    --tabbg:#262d49; --chipbg:#262d49; --stripe:#232a44; --stagebg:#2c3352; --sub:#a49e8a; --furnbg:#262d49;
+  }
+  body[data-theme="boundary"]{
+    --ink:#f0ebf7; --paper:#221f38; --card:#2c2847; --line:#4c4570;
+    --accent:#e0b95c; --accent2:#93b8a6; --dark:#d5cfec;
+    --tabbg:#332e55; --chipbg:#332e55; --stripe:#2f2a4e; --stagebg:#3a3462; --sub:#b3aad0; --furnbg:#332e55;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; background:var(--paper); color:var(--ink); transition:background 1s ease, color 1s ease;}
+  header{background:linear-gradient(180deg,#fdf6dd,#f3e9c8); border-bottom:2px solid var(--line); padding:10px 14px; position:sticky; top:0; z-index:5;}
+  header h1{font-size:17px; margin:0 0 4px;}
+  header .meta{font-size:13px; color:var(--sub); display:flex; gap:14px; flex-wrap:wrap;}
+  main{max-width:720px; margin:0 auto; padding:12px;}
+  .story{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:14px; line-height:1.8; min-height:96px; white-space:pre-wrap;}
+  .tabs{display:flex; gap:6px; margin:12px 0; flex-wrap:wrap;}
+  .tabs button{flex:1; min-width:17%; padding:10px 4px; font-size:14px; border:1px solid var(--line); background:var(--tabbg); border-radius:8px; cursor:pointer; color:var(--ink);}
+  .tabs button.on{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .tabs button.locked{opacity:.45;}
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:12px;}
+  .panel h2{font-size:15px; margin:0 0 8px; border-bottom:1px solid var(--line); padding-bottom:6px;}
+  .panel h3{font-size:13px; margin:12px 0 4px; color:#8a6d2f;}
+  .row{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:10px 2px; border-bottom:2px solid #d9c894; font-size:14px;}
+  .row:last-child{border-bottom:none;}
+  .panel .row:nth-of-type(even){background:var(--stripe);}
+  .row .need{color:var(--sub); font-size:12px; line-height:1.6;}
+  .row .btns{display:flex; gap:6px; flex-shrink:0;}
+  .row button{padding:7px 12px; border-radius:7px; border:1px solid var(--accent); background:var(--accent); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;}
+  .row button.sub{background:var(--card); color:var(--accent);}
+  .row button:disabled{border-color:#ccc; background:#fff; color:#aaa; cursor:default;}
+  .row.flash{animation:flash 2s ease;}
+  @keyframes flash{0%{background:#f3d98b;}100%{background:transparent;}}
+  .inv{display:flex; flex-wrap:wrap; gap:6px;}
+  .chip{background:var(--chipbg); border:1px solid var(--line); border-radius:20px; padding:4px 10px; font-size:13px;}
+  .chip.zero{opacity:.38;}
+  .chip.new{animation:pop 1.2s ease;}
+  @keyframes pop{0%{background:#f3d98b; transform:scale(1.12);}100%{background:var(--chipbg); transform:scale(1);}}
+  .hint{font-size:12px; color:var(--sub); line-height:1.7;}
+  .bigbtn{width:100%; padding:13px; font-size:16px; border-radius:9px; border:none; background:var(--accent2); color:#fff; cursor:pointer; margin:6px 0;}
+  .subbtn{width:100%; padding:10px; font-size:13px; border-radius:9px; border:1px solid var(--line); background:var(--card); cursor:pointer; margin-top:8px; color:var(--sub);}
+  .done{color:var(--accent2); font-weight:bold;}
+  .stage{display:inline-block; background:var(--stagebg); border:1px solid var(--line); color:#8a6d2f; border-radius:10px; font-size:11px; padding:1px 8px; margin-right:6px; vertical-align:middle;}
+  .furnace{font-size:13px; color:var(--dark); background:var(--furnbg); border:1px solid #c9cfe4; border-radius:8px; padding:10px 12px; line-height:1.8;}
+  .toast{position:fixed; left:50%; transform:translateX(-50%) translateY(20px); bottom:18px; width:min(92vw,560px); background:#33302a; color:#fdf6dd; border-radius:12px; padding:12px 16px; font-size:14px; line-height:1.7; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:50; box-shadow:0 6px 18px rgba(0,0,0,.25);}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast .t-title{font-weight:bold; font-size:15px;}
+  .toast .t-sub{font-size:12px; color:#d8cfba;}
+  #clearBox{display:none; background:var(--stagebg); border:2px solid var(--accent); border-radius:10px; padding:16px; text-align:center; line-height:1.9; margin-bottom:12px;}
+  .zukan{font-size:13px; line-height:1.7;}
+  .zukan .unknown{color:#aaa;}
+  .scene{border:2px dashed var(--accent); border-radius:10px; padding:18px 14px; text-align:center; margin-bottom:12px; background:linear-gradient(180deg, rgba(255,240,190,.45), rgba(255,240,190,0)); color:var(--ink);}
+  .scene .cap{font-size:12px; color:var(--sub); line-height:1.7;}
+  #flash{position:fixed; inset:0; background:radial-gradient(circle at 50% 32%, rgba(255,244,200,.98), rgba(255,244,200,0) 65%); opacity:0; pointer-events:none; transition:opacity 1.8s ease; z-index:60;}
+</style>
+</head>
+<body>
+<header>
+  <h1>光と闇の工房 <span style="font-size:12px; color:#8a7f63;">― 第1〜4章 工房と集落／明かりの塔／塔の光／国境を越えて ―</span></h1>
+  <div class="meta">
+    <span id="dayLabel">1日目</span>
+    <span id="gatherLabel">採集：あと3回</span>
+    <span id="shopLabel">工房名：まだない</span>
+  </div>
+</header>
+<main>
+  <div id="storyImg" class="scene" style="display:none;"></div>
+  <div class="story" id="story"></div>
+  <div class="tabs" id="tabBar">
+    <button data-tab="workshop" class="on">工房</button>
+    <button data-tab="gather" id="tabGather">採集</button>
+    <button data-tab="village">集落（依頼）</button>
+  </div>
+
+  <section id="tab-workshop">
+    <div class="panel">
+      <h2>再建（設計図）</h2>
+      <div id="rebuildList"></div>
+      <div class="furnace" id="furnaceBox" style="margin-top:10px;"></div>
+    </div>
+    <div class="panel">
+      <h2>加工</h2>
+      <div id="recipeList"></div>
+    </div>
+  </section>
+
+  <section id="tab-gather" style="display:none;">
+    <div class="panel">
+      <h2>朝露の森で採集</h2>
+      <p class="hint">取りたい素材を選んで採集する。1回で2個手に入る。採集は1日3回まで。</p>
+      <div id="gatherForest"></div>
+    </div>
+    <div class="panel">
+      <h2>陽だまりの河原で採集</h2>
+      <p class="hint">浅瀬の石は、陽の光をよく含んでいる。1回で2個手に入る。</p>
+      <div id="gatherRiver"></div>
+    </div>
+    <div class="panel" id="shallowsPanel" style="display:none;">
+      <h2>星屑の浅瀬（河原の上流）</h2>
+      <p class="hint">川底の砂が、星の粉のように光っている。1回で2個手に入る。</p>
+      <div id="gatherShallows"></div>
+    </div>
+    <div class="panel">
+      <h2>陽光温室</h2>
+      <div id="greenhouseBody"></div>
+    </div>
+    <div id="darkGather" style="display:none;">
+      <div class="panel">
+        <h2>影樹の森で採集（宵の集落のまわり）</h2>
+        <p class="hint">黒い木々が、音を吸い込むように立っている。1回で2個手に入る。</p>
+        <div id="gatherDForest"></div>
+      </div>
+      <div class="panel">
+        <h2>月影の河原で採集</h2>
+        <p class="hint">月の光を返す石と、闇に沈む砂。1回で2個手に入る。</p>
+        <div id="gatherMoonRiver"></div>
+      </div>
+      <div class="panel">
+        <h2>夜の温室</h2>
+        <div id="dgreenhouseBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-village" style="display:none;">
+    <div class="panel">
+      <h2>集落の依頼</h2>
+      <div id="requestList"></div>
+    </div>
+  </section>
+
+  <div class="panel">
+    <h2>在庫</h2>
+    <div class="inv" id="invBox"></div>
+    <p class="hint" id="goalHint" style="margin-top:8px;"></p>
+  </div>
+
+  <div class="panel">
+    <h2>図鑑</h2>
+    <div class="zukan" id="zukanBox"></div>
+  </div>
+
+  <div id="flash"></div>
+  <div id="clearBox"></div>
+
+  <button class="bigbtn" id="restBtn" style="background:#7a6a4f;">今日は休む（次の日へ）</button>
+  <button class="subbtn" id="presetBtn" style="display:none; border-color:#b8862f; color:#8a6d2f; font-weight:bold;">第1章クリア済みの状態で第2章から始める</button>
+  <button class="subbtn" id="exportBtn">セーブコードを表示する</button>
+  <button class="subbtn" id="importBtn">セーブを読み込む（ファイル）</button>
+  <input type="file" id="importFile" accept=".json" style="display:none;">
+  <div class="panel" id="codePanel" style="display:none;">
+    <h2>セーブコード</h2>
+    <p class="hint">書き出し：下のコードを全部コピーして、メモなどに残してください。読み込み：コードを貼り付けて「このコードで読み込む」を押してください。</p>
+    <textarea id="codeArea" style="width:100%; height:110px; font-size:11px;"></textarea>
+    <button class="subbtn" id="copyBtn">コードをコピー</button>
+    <button class="subbtn" id="loadCodeBtn">このコードで読み込む</button>
+    <button class="subbtn" id="clearCodeBtn">枠を空にする</button>
+  </div>
+  <button class="subbtn" id="resetBtn">最初からやり直す</button>
+  <div class="toast" id="toast"><div class="t-title"></div><div class="t-sub"></div></div>
+</main>
+
+<script type="application/json" id="gamedata">
+{
+  "items": {
+    "log": {
+      "name": "白樺の原木",
+      "desc": "白い樹皮の原木。丈夫な木材のもと。"
+    },
+    "lumber": {
+      "name": "白木材",
+      "desc": "白樺を挽いた材。明るい色合い。"
+    },
+    "board": {
+      "name": "白木の板",
+      "desc": "真っ直ぐに製材した板。家具や部材に。"
+    },
+    "flower": {
+      "name": "朝露の花",
+      "desc": "朝露を集める白い花。香りが強い。"
+    },
+    "dried": {
+      "name": "乾燥朝露",
+      "desc": "干して香りを濃くした花。"
+    },
+    "oil": {
+      "name": "朝露の精油",
+      "desc": "蒸留した澄んだ精油。灯と香りのもと。"
+    },
+    "cotton": {
+      "name": "陽だまり綿",
+      "desc": "陽の光をよく含む、温かい綿。"
+    },
+    "thread": {
+      "name": "光糸",
+      "desc": "陽だまり綿を紡いだ糸。ほのかに光る。"
+    },
+    "cloth": {
+      "name": "光布",
+      "desc": "光糸を織った布。光を受けて柔らかく輝く。"
+    },
+    "stone": {
+      "name": "陽だまり石",
+      "desc": "河原の浅瀬で拾う、温かい石。"
+    },
+    "polished": {
+      "name": "磨き石",
+      "desc": "丹念に磨いた石。光をよく通す。"
+    },
+    "lens": {
+      "name": "陽光レンズ",
+      "desc": "磨き石を組んだレンズ。光を集める。"
+    },
+    "lamp": {
+      "name": "香油ランプ",
+      "desc": "精油を灯す小さなランプ。"
+    },
+    "curtain": {
+      "name": "カーテン",
+      "desc": "光布で仕立てたカーテン。"
+    },
+    "bedding": {
+      "name": "寝具",
+      "desc": "光布の寝具。陽だまりの匂いがする。"
+    },
+    "frame": {
+      "name": "窓枠",
+      "desc": "板と磨き石で組んだ、光を通す窓枠。"
+    },
+    "sunshade": {
+      "name": "日除け",
+      "desc": "光布の日除け。強い陽射しを和らげる。"
+    },
+    "repellent": {
+      "name": "防虫香",
+      "desc": "精油と乾燥朝露の香。虫を寄せつけない。"
+    },
+    "moss": {
+      "name": "陽光苔",
+      "desc": "温室で育つ、光を蓄える苔。"
+    },
+    "mossball": {
+      "name": "苔玉",
+      "desc": "陽光苔を丸く仕立てた置物。"
+    },
+    "starsand": {
+      "name": "星屑砂",
+      "desc": "浅瀬に光る細かな砂。星の粉のよう。"
+    },
+    "starglass": {
+      "name": "星粉ガラス",
+      "desc": "星屑砂を焼いたガラス。淡く瞬く。"
+    },
+    "mosspowder": {
+      "name": "苔の粉",
+      "desc": "陽光苔を乾かして挽いた粉。布に光を移す。"
+    },
+    "weave": {
+      "name": "陽だまり織り",
+      "desc": "苔の粉を練り込んだ光布。深い輝き。"
+    },
+    "pattern": {
+      "name": "型紙",
+      "desc": "仕立ての型紙。光布と板で作る。"
+    },
+    "sunlamp": {
+      "name": "陽光灯",
+      "desc": "陽光レンズと星粉ガラスの大きな灯。塔に載せるため作られた。"
+    },
+    "reflector": {
+      "name": "磨き石の反射板",
+      "desc": "磨き上げた石の板。光を受けて、遠くまで返す。"
+    },
+    "dlog": {
+      "name": "影樹の原木",
+      "desc": "黒く艶のある原木。闇の木材のもと。"
+    },
+    "dlumber": {
+      "name": "影木材",
+      "desc": "影樹を挽いた材。深い色合い。"
+    },
+    "dboard": {
+      "name": "影木の板",
+      "desc": "影木材を製材した板。闇側の建物に使う。"
+    },
+    "nflower": {
+      "name": "夜啼き草",
+      "desc": "夜にだけ香る草。闇の香りのもと。"
+    },
+    "ndried": {
+      "name": "乾かし夜草",
+      "desc": "夜啼き草を陰干しして、香りを濃くしたもの。"
+    },
+    "noil": {
+      "name": "夜の香油",
+      "desc": "蒸留した深い香りの油。闇の灯のもと。"
+    },
+    "cocoon": {
+      "name": "黒繭",
+      "desc": "闇の蚕の繭。影糸のもと。"
+    },
+    "dthread": {
+      "name": "影糸",
+      "desc": "黒繭を紡いだ糸。月の光を吸う。"
+    },
+    "dcloth": {
+      "name": "夜布",
+      "desc": "影糸を織った布。静かな闇色。"
+    },
+    "nstone": {
+      "name": "夜鉱石",
+      "desc": "月影の河原で拾う、冷たい鉱石。"
+    },
+    "npolished": {
+      "name": "磨き夜石",
+      "desc": "磨き上げた夜鉱石。月の光をよく返す。"
+    },
+    "mlens": {
+      "name": "月光レンズ",
+      "desc": "磨き夜石を組んだレンズ。月の光を集める。"
+    },
+    "nsand": {
+      "name": "夜砂",
+      "desc": "河原の闇に沈む細かな砂。焼くと影硝子になる。"
+    },
+    "dglass": {
+      "name": "影硝子",
+      "desc": "夜砂を焼いた硝子。灯りを柔らかく通す。"
+    },
+    "moonlamp": {
+      "name": "月影の小灯り",
+      "desc": "夜の香油と影硝子の小さな灯。闇の夜を静かに照らす。"
+    },
+    "nmoss": {
+      "name": "夜苔",
+      "desc": "夜の温室で育つ、月の光を蓄える苔。"
+    },
+    "nmosspowder": {
+      "name": "夜苔の粉",
+      "desc": "夜苔を乾かして挽いた粉。布に月の光を移す。"
+    }
+  },
+  "gatherPerDay": 3,
+  "gatherSpots": {
+    "forest": [
+      {
+        "item": "log",
+        "n": 2
+      },
+      {
+        "item": "flower",
+        "n": 2
+      },
+      {
+        "item": "cotton",
+        "n": 2
+      }
+    ],
+    "river": [
+      {
+        "item": "stone",
+        "n": 2
+      }
+    ],
+    "greenhouse": [
+      {
+        "item": "moss",
+        "n": 2
+      }
+    ],
+    "shallows": [
+      {
+        "item": "starsand",
+        "n": 2
+      }
+    ],
+    "dforest": [
+      {
+        "item": "dlog",
+        "n": 2
+      },
+      {
+        "item": "nflower",
+        "n": 2
+      },
+      {
+        "item": "cocoon",
+        "n": 2
+      }
+    ],
+    "moonriver": [
+      {
+        "item": "nstone",
+        "n": 2
+      },
+      {
+        "item": "nsand",
+        "n": 2
+      }
+    ],
+    "dgreenhouse": [
+      {
+        "item": "nmoss",
+        "n": 2
+      }
+    ]
+  },
+  "recipes": [
+    {
+      "id": "r_lumber",
+      "out": "lumber",
+      "in": {
+        "log": 1
+      },
+      "station": "basic",
+      "group": "木のしごと",
+      "stage": "一次加工",
+      "label": "白樺を挽いて白木材に",
+      "craftText": "皮を剥ぎ、木目を揃える。白い木肌が現れた。"
+    },
+    {
+      "id": "r_board",
+      "out": "board",
+      "in": {
+        "lumber": 2
+      },
+      "station": "bench",
+      "group": "木のしごと",
+      "stage": "二次加工",
+      "label": "白木材を製材して板に",
+      "craftText": "挽いた材を測り、真っ直ぐな板に仕上げる。"
+    },
+    {
+      "id": "r_dried",
+      "out": "dried",
+      "in": {
+        "flower": 1
+      },
+      "station": "basic",
+      "group": "花・香のしごと",
+      "stage": "一次加工",
+      "label": "朝露の花を干す",
+      "craftText": "花を束ねて風に当てる。香りが濃くなっていく。"
+    },
+    {
+      "id": "r_oil",
+      "out": "oil",
+      "in": {
+        "dried": 1
+      },
+      "station": "still",
+      "group": "花・香のしごと",
+      "stage": "二次加工",
+      "label": "乾燥朝露を蒸留して精油に",
+      "craftText": "蒸留器から、澄んだ精油が一滴ずつ落ちる。"
+    },
+    {
+      "id": "r_mosspowder",
+      "out": "mosspowder",
+      "in": {
+        "moss": 1
+      },
+      "station": "basic",
+      "group": "苔のしごと",
+      "stage": "一次加工",
+      "chapter": 2,
+      "label": "陽光苔を乾かして粉に",
+      "craftText": "苔を干して、石臼で静かに挽く。光が粉に移った。"
+    },
+    {
+      "id": "r_thread",
+      "out": "thread",
+      "in": {
+        "cotton": 1
+      },
+      "station": "basic",
+      "group": "布のしごと",
+      "stage": "一次加工",
+      "label": "陽だまり綿を紡いで光糸に",
+      "craftText": "綿をほぐし、指先で撚りをかけて糸にする。"
+    },
+    {
+      "id": "r_cloth",
+      "out": "cloth",
+      "in": {
+        "thread": 2
+      },
+      "station": "bench",
+      "group": "布のしごと",
+      "stage": "二次加工",
+      "label": "光糸を織って光布に",
+      "craftText": "織機に糸をかけ、光を受ける布が織り上がる。"
+    },
+    {
+      "id": "r_weave",
+      "out": "weave",
+      "in": {
+        "cloth": 1,
+        "mosspowder": 1
+      },
+      "station": "atelier",
+      "group": "布のしごと",
+      "stage": "上位品",
+      "chapter": 2,
+      "label": "苔の粉を練り込んで織る",
+      "craftText": "粉を糸に練り込み、深く輝く布が織り上がる。"
+    },
+    {
+      "id": "r_polished",
+      "out": "polished",
+      "in": {
+        "stone": 1
+      },
+      "station": "basic",
+      "group": "石のしごと",
+      "stage": "一次加工",
+      "label": "陽だまり石を磨く",
+      "craftText": "水と砂で磨く。石の芯に、温かい光が見えてくる。"
+    },
+    {
+      "id": "r_lens",
+      "out": "lens",
+      "in": {
+        "polished": 2
+      },
+      "station": "bench",
+      "group": "石のしごと",
+      "stage": "二次加工",
+      "label": "磨き石を組んで陽光レンズに",
+      "craftText": "二枚の石を組むと、光が一点に集まった。"
+    },
+    {
+      "id": "r_starglass",
+      "out": "starglass",
+      "in": {
+        "starsand": 2
+      },
+      "station": "basic",
+      "group": "砂のしごと",
+      "stage": "焼成",
+      "chapter": 2,
+      "label": "星屑砂を焼いてガラスに",
+      "craftText": "砂を炉で焼く。冷ますと、淡く瞬くガラスになった。"
+    },
+    {
+      "id": "r_lamp",
+      "out": "lamp",
+      "in": {
+        "oil": 1,
+        "lumber": 1
+      },
+      "station": "basic",
+      "group": "合流のしごと",
+      "stage": "組み立て",
+      "label": "香油ランプを組み立てる",
+      "craftText": "台座に芯を据え、精油を注ぐ。小さな灯の準備ができた。",
+      "lockedUntilRequest": "req_baker"
+    },
+    {
+      "id": "r_frame",
+      "out": "frame",
+      "in": {
+        "board": 1,
+        "polished": 1
+      },
+      "station": "bench",
+      "group": "合流のしごと",
+      "stage": "組み立て",
+      "label": "窓枠を組む",
+      "craftText": "板の枠に磨き石をはめる。光がまっすぐ通った。"
+    },
+    {
+      "id": "r_repellent",
+      "out": "repellent",
+      "in": {
+        "oil": 1,
+        "dried": 1
+      },
+      "station": "basic",
+      "group": "合流のしごと",
+      "stage": "調合",
+      "label": "防虫香を調合する",
+      "craftText": "精油に乾燥朝露を混ぜる。爽やかな香りが立った。"
+    },
+    {
+      "id": "r_sunlamp",
+      "out": "sunlamp",
+      "in": {
+        "lens": 1,
+        "oil": 1,
+        "board": 1,
+        "starglass": 1
+      },
+      "station": "bench",
+      "group": "合流のしごと",
+      "stage": "組み立て",
+      "chapter": 2,
+      "label": "陽光灯を組み立てる",
+      "craftText": "レンズが光を集め、星粉ガラスのカバーがそれを柔らかく広げる。塔の灯が、生まれた。"
+    },
+    {
+      "id": "mk_reflector",
+      "out": "reflector",
+      "in": {
+        "polished": 2
+      },
+      "group": "石のしごと",
+      "stage": "仕上げ",
+      "chapter": 3,
+      "label": "反射板に仕上げる",
+      "craftText": "磨き石を二枚、角度を合わせて組み合わせた。光が、まっすぐに返る。"
+    },
+    {
+      "id": "r_sunshade",
+      "out": "sunshade",
+      "in": {
+        "cloth": 1
+      },
+      "station": "basic",
+      "group": "仕立てのしごと",
+      "stage": "仕上げ",
+      "label": "光布で日除けを仕立てる",
+      "craftText": "布の端をかがり、日除けに仕立てる。"
+    },
+    {
+      "id": "r_curtain",
+      "out": "curtain",
+      "in": {
+        "cloth": 1
+      },
+      "station": "basic",
+      "group": "仕立てのしごと",
+      "stage": "仕上げ",
+      "label": "光布でカーテンを縫う",
+      "craftText": "布の端を縫い、カーテンに仕立てる。"
+    },
+    {
+      "id": "r_bedding",
+      "out": "bedding",
+      "in": {
+        "cloth": 1
+      },
+      "station": "basic",
+      "group": "仕立てのしごと",
+      "stage": "仕上げ",
+      "label": "光布で寝具を仕立てる",
+      "craftText": "布を重ねて綿を入れ、寝具に仕立てる。"
+    },
+    {
+      "id": "r_mossball",
+      "out": "mossball",
+      "in": {
+        "moss": 2
+      },
+      "station": "basic",
+      "group": "仕立てのしごと",
+      "stage": "仕上げ",
+      "label": "陽光苔で苔玉を作る",
+      "craftText": "苔を丸く寄せて、糸でそっと留める。"
+    },
+    {
+      "id": "r_pattern",
+      "out": "pattern",
+      "in": {
+        "cloth": 1,
+        "board": 1
+      },
+      "station": "bench",
+      "group": "仕立てのしごと",
+      "stage": "仕上げ",
+      "chapter": 2,
+      "label": "型紙を作る",
+      "craftText": "布の寸法を板に写し、仕立ての型紙ができた。"
+    },
+    {
+      "id": "r_dlumber",
+      "out": "dlumber",
+      "in": {
+        "dlog": 1
+      },
+      "station": "basic",
+      "group": "闇・木のしごと",
+      "stage": "一次加工",
+      "chapter": 4,
+      "label": "影樹を挽いて影木材に",
+      "craftText": "黒い木肌が現れた。光の木とは逆に、灯りを吸い込むような色だ。"
+    },
+    {
+      "id": "r_dboard",
+      "out": "dboard",
+      "in": {
+        "dlumber": 2
+      },
+      "station": "dbench",
+      "group": "闇・木のしごと",
+      "stage": "二次加工",
+      "chapter": 4,
+      "label": "影木材を製材して板に",
+      "craftText": "測って、真っ直ぐな板に仕上げる。闇側の建物の骨になる。"
+    },
+    {
+      "id": "r_ndried",
+      "out": "ndried",
+      "in": {
+        "nflower": 1
+      },
+      "station": "basic",
+      "group": "闇・花香のしごと",
+      "stage": "一次加工",
+      "chapter": 4,
+      "label": "夜啼き草を陰干しする",
+      "craftText": "陽に当てず、闇の中で干す。香りが深く沈んでいく。"
+    },
+    {
+      "id": "r_noil",
+      "out": "noil",
+      "in": {
+        "ndried": 1
+      },
+      "station": "still",
+      "group": "闇・花香のしごと",
+      "stage": "二次加工",
+      "chapter": 4,
+      "label": "乾かし夜草を蒸留する",
+      "craftText": "蒸留器から、夜の香油が落ちる。静かで、重い香り。"
+    },
+    {
+      "id": "r_dthread",
+      "out": "dthread",
+      "in": {
+        "cocoon": 1
+      },
+      "station": "basic",
+      "group": "闇・布のしごと",
+      "stage": "一次加工",
+      "chapter": 4,
+      "label": "黒繭を紡いで影糸に",
+      "craftText": "黒い糸が伸びていく。月の光を吸って、かすかに艶めく。"
+    },
+    {
+      "id": "r_dcloth",
+      "out": "dcloth",
+      "in": {
+        "dthread": 2
+      },
+      "station": "dbench",
+      "group": "闇・布のしごと",
+      "stage": "二次加工",
+      "chapter": 4,
+      "label": "影糸を織って夜布に",
+      "craftText": "織り上がった布は、静かな闇色。触れるとひんやりする。"
+    },
+    {
+      "id": "r_npolished",
+      "out": "npolished",
+      "in": {
+        "nstone": 1
+      },
+      "station": "basic",
+      "group": "闇・石のしごと",
+      "stage": "一次加工",
+      "chapter": 4,
+      "label": "夜鉱石を磨く",
+      "craftText": "磨くほどに、石の奥で月の光が目覚めていく。"
+    },
+    {
+      "id": "r_mlens",
+      "out": "mlens",
+      "in": {
+        "npolished": 2
+      },
+      "station": "dbench",
+      "group": "闇・石のしごと",
+      "stage": "二次加工",
+      "chapter": 4,
+      "label": "磨き夜石を組んでレンズに",
+      "craftText": "月光レンズができた。細い月の光まで集めてしまう。"
+    },
+    {
+      "id": "r_dglass",
+      "out": "dglass",
+      "in": {
+        "nsand": 2
+      },
+      "station": "basic",
+      "group": "闇・石のしごと",
+      "stage": "二次加工",
+      "chapter": 4,
+      "label": "夜砂を焼いて影硝子に",
+      "craftText": "焼き上がった硝子は、灯りを柔らかく通す。"
+    },
+    {
+      "id": "r_moonlamp",
+      "out": "moonlamp",
+      "in": {
+        "noil": 1,
+        "dglass": 1,
+        "dthread": 1
+      },
+      "station": "basic",
+      "group": "闇の合流",
+      "stage": "合流",
+      "chapter": 4,
+      "label": "月影の小灯りを作る",
+      "craftText": "影硝子の中で、夜の香油の灯が静かに揺れる。"
+    },
+    {
+      "id": "r_nmosspowder",
+      "out": "nmosspowder",
+      "in": {
+        "nmoss": 1
+      },
+      "station": "basic",
+      "group": "闇の合流",
+      "stage": "一次加工",
+      "chapter": 4,
+      "label": "夜苔を乾かして粉に",
+      "craftText": "月の光を含んだ粉ができた。布に移せば、夜布が淡く光るはず。"
+    }
+  ],
+  "requests": [
+    {
+      "id": "req_baker",
+      "giver": "パン屋のマーロ",
+      "title": "明かりがほしい",
+      "need": {
+        "oil": 1
+      },
+      "text": "店の香油ランプの油が切れてしまったの。朝露の精油を1つ、分けてもらえないかしら。",
+      "doneText": "「ありがとう、これで夕方の店も明るいわ。……そうだ、工房にもランプを置くといいよ。精油と白木材の台座があれば作れるの」"
+    },
+    {
+      "id": "req_merchant",
+      "story": true,
+      "giver": "行商人ガルド",
+      "title": "壊れた棚を直してほしい",
+      "need": {
+        "board": 2
+      },
+      "text": "荷車の棚板が割れちまってね。白木の板を2枚、作ってもらえると助かるんだが。",
+      "doneText": "「おお、助かった！　……あんた、境界の森の近くに住むんだって？　向こう側じゃあ、黒い木を使うって話だ。影樹とか言ったかな。……ま、噂だけどね」"
+    },
+    {
+      "id": "req_sunshade",
+      "giver": "パン屋のマーロ",
+      "title": "店の窓に日除けを",
+      "need": {
+        "sunshade": 1
+      },
+      "text": "西日が強くて、店のパンの棚が傷むの。光布の日除けを1つ、作ってもらえる？",
+      "doneText": "「まあ、光が柔らかくなったわ。これで午後も安心して店が開ける」"
+    },
+    {
+      "id": "req_mossball",
+      "giver": "温室のハリエット",
+      "title": "苔玉を飾りたい",
+      "need": {
+        "mossball": 1
+      },
+      "afterRebuild": "rb_greenhouse",
+      "text": "温室が直ったら、最初に飾るものがほしいの。陽光苔の苔玉を1つ、お願いできるかしら。陽光苔は、この温室の中で採れるのよ。",
+      "doneText": "「ふふ、温室に緑が戻ってきたわね。あんたのおかげよ」"
+    },
+    {
+      "id": "req_yuno_lens",
+      "story": true,
+      "giver": "塔守の見習いユノ",
+      "title": "塔の予備レンズ",
+      "need": {
+        "lens": 1
+      },
+      "chapter": 2,
+      "text": "明かりの塔の灯が、近ごろ弱くて。予備の陽光レンズを1つ、作ってもらえませんか。",
+      "doneText": "「ありがとうございます。これで少し安心です。……でも、本当は塔の灯そのものを作り直せたら。昔の灯は、境界の職人の作だったって、古老が言ってました」"
+    },
+    {
+      "id": "req_garudo_glass",
+      "story": true,
+      "giver": "行商人ガルド",
+      "title": "星粉の小瓶がほしい",
+      "need": {
+        "starglass": 1
+      },
+      "chapter": 2,
+      "text": "星粉ガラスってやつで小瓶を作りてえんだ。材料のガラスを1つ、譲ってくれないか。",
+      "doneText": "「へえ、これが星粉ガラスか。……向こう側の話、もう一つ聞いたよ。闇の地じゃ影樹って黒い木と、夜鉱石って石を使うそうだ。光の品とは、手触りから違うらしい」"
+    },
+    {
+      "id": "req_harriet_weave",
+      "giver": "温室のハリエット",
+      "title": "織りで包んで",
+      "need": {
+        "weave": 1
+      },
+      "afterRebuild": "rb_atelier",
+      "chapter": 2,
+      "text": "仕立工房が戻ったのね。大事な苗を包む布がほしいの。陽だまり織りを1つ、お願い。",
+      "doneText": "「まあ、温かい光……。苗も、私も、ほっとするわ」"
+    },
+    {
+      "id": "req_marlo_weave",
+      "giver": "パン屋のマーロ",
+      "title": "祭りの旗布",
+      "need": {
+        "weave": 1
+      },
+      "afterRebuild": "rb_atelier",
+      "chapter": 2,
+      "text": "集落の祭りで店に旗を立てるの。陽だまり織りを1つ、作ってくれる？",
+      "doneText": "「見て、光を受けて旗が輝いてる。祭りの日、店が一番目立つわね」"
+    },
+    {
+      "id": "req_yuno_prep",
+      "giver": "塔守の見習いユノ",
+      "title": "点灯式の準備",
+      "need": {
+        "lamp": 1
+      },
+      "story": true,
+      "chapter": 3,
+      "text": "点灯式の夜、足元を照らす予備の灯りがいるんだ。香油ランプをひとつ、分けてくれない？",
+      "doneText": "「ありがとう。これで式の間、塔の階段も安心だ。……いよいよだね」"
+    },
+    {
+      "id": "req_harriet_record",
+      "giver": "ハリエット",
+      "title": "灯守の手記を守って",
+      "need": {
+        "weave": 1
+      },
+      "story": true,
+      "chapter": 3,
+      "text": "塔の灯守が残した古い手記があるの。傷まないよう、陽だまり織りで包んでおきたいのよ。",
+      "doneText": "手記には、点灯式の古い作法が書かれていた。「灯は、日が沈みきる前に点ける。集落の皆が見上げる中で」"
+    },
+    {
+      "id": "req_garudo_rumor3",
+      "giver": "行商人ガルド",
+      "title": "灯りの品を、国境の先へ",
+      "need": {
+        "lamp": 1
+      },
+      "story": true,
+      "chapter": 3,
+      "text": "点灯式の噂は、もう国境の先まで届いておる。香油ランプをひとつ、向こうの知り合いに届けさせてくれんか。",
+      "doneText": "「礼を言う。……ひとつ耳打ちだ。境界の灯台は今も灯っておるよ。闇側の職人が、たった一人で守り続けているそうだ」"
+    },
+    {
+      "id": "req_marlo_festival",
+      "giver": "パン屋のマーロ",
+      "title": "点灯式の祝いパン",
+      "need": {
+        "cloth": 1
+      },
+      "chapter": 3,
+      "text": "点灯式の日に、集落のみんなで分ける大きな祝いパンを焼くの。一番いい光布で包みたいな。",
+      "doneText": "「見て、光を受けて布がきれいでしょう。塔の灯が点いたら、みんなで食べようね」"
+    },
+    {
+      "id": "req_mira_oil",
+      "giver": "薬房のミラ",
+      "title": "夜の香油がほしい",
+      "need": {
+        "noil": 1
+      },
+      "chapter": 4,
+      "text": "薬の香り付けに、夜の香油がいるの。1つ分けてもらえる？　闇の素材はね、陽に当てないのが作法なのよ。",
+      "doneText": "「ありがとう。……あら、あんた光の側の人なのに、闇の香油が作れるのね。面白い子」"
+    },
+    {
+      "id": "req_noa_board",
+      "giver": "世話役のノア",
+      "title": "補修の板",
+      "need": {
+        "dboard": 2
+      },
+      "chapter": 4,
+      "text": "集落の掲示板が朽ちてね。影木の板を2枚、作ってもらえると助かるよ。",
+      "doneText": "「おお、立派な板だ。あんたの作業場も、看板が掛かれば一人前だね」"
+    },
+    {
+      "id": "req_garudo_border",
+      "story": true,
+      "giver": "行商人ガルド",
+      "title": "国境の荷",
+      "need": {
+        "cloth": 1
+      },
+      "chapter": 4,
+      "text": "向こう側の品を、こっちで欲しがる人がいてね。光布を1つ、譲ってくれないか。行き来できるのは、俺とあんたくらいだ。",
+      "doneText": "「へへ、助かる。……国境ってのは、品が越えると少しずつ意味が薄れていくもんだ。あんたの工房は、その最先端だな」"
+    },
+    {
+      "id": "req_traveler_mark",
+      "story": true,
+      "giver": "旅人",
+      "title": "峠の目印",
+      "need": {
+        "moonlamp": 1
+      },
+      "chapter": 4,
+      "text": "国境の峠は、夜になると道が消える。月影の小灯りをひとつ、目印に置かせてほしい。",
+      "doneText": "「……ありがとう。あの峠は、俺が師匠の元を離れた夜に越えた道でね。灯りがあると、帰る人間も迷わない」"
+    }
+  ],
+  "rebuild": [
+    {
+      "id": "rb_bench",
+      "name": "作業台の修理",
+      "need": {
+        "lumber": 3
+      },
+      "unlock": "bench",
+      "doneText": "作業台が直った。製材と織り、石組みができるようになった。"
+    },
+    {
+      "id": "rb_light",
+      "name": "明かりの設置",
+      "need": {
+        "lamp": 1
+      },
+      "doneText": "工房に香油ランプが灯った。夜の工房が、少しだけ温かい。"
+    },
+    {
+      "id": "rb_bed",
+      "name": "寝床まわり",
+      "need": {
+        "curtain": 1,
+        "bedding": 1
+      },
+      "doneText": "カーテンと寝具が揃った。ここで暮らしていける。"
+    },
+    {
+      "id": "rb_greenhouse",
+      "name": "陽光温室の再建",
+      "need": {
+        "frame": 2,
+        "sunshade": 1,
+        "repellent": 1
+      },
+      "unlock": "greenhouse",
+      "doneText": "陽光温室が直った。ガラスに陽が差し、陽光苔が育ち始めた。"
+    },
+    {
+      "id": "rb_sign",
+      "name": "工房の看板",
+      "need": {
+        "board": 1,
+        "lens": 1
+      },
+      "afterRebuild": "rb_greenhouse",
+      "doneText": "看板が掛かった。陽光レンズが、朝の光を集めて工房名を照らしている。"
+    },
+    {
+      "id": "rb_atelier",
+      "name": "仕立工房の再建",
+      "need": {
+        "board": 2,
+        "pattern": 1,
+        "lamp": 1
+      },
+      "unlock": "atelier",
+      "chapter": 2,
+      "doneText": "仕立工房が戻ってきた。織機の音が、集落に小さく響く。"
+    },
+    {
+      "id": "rb_tower",
+      "name": "明かりの塔の修復",
+      "need": {
+        "sunlamp": 1,
+        "board": 3,
+        "reflector": 2
+      },
+      "chapter": 3,
+      "doneText": "塔の修復が終わった。"
+    },
+    {
+      "id": "rb_dbench",
+      "name": "作業場の作業台の修理",
+      "need": {
+        "dlumber": 3
+      },
+      "unlock": "dbench",
+      "chapter": 4,
+      "doneText": "作業場の作業台が直った。影木の製材と織り、石組みができるようになった。"
+    },
+    {
+      "id": "rb_dlight",
+      "name": "作業場の灯りの設置",
+      "need": {
+        "moonlamp": 1
+      },
+      "chapter": 4,
+      "doneText": "作業場に月影の小灯りが灯った。闇の夜は深いが、この灯りは目に優しい。"
+    },
+    {
+      "id": "rb_dbed",
+      "name": "作業場の寝床まわり",
+      "need": {
+        "dcloth": 2
+      },
+      "chapter": 4,
+      "doneText": "夜布の寝具が揃った。闇側でも、ここで暮らしていける。"
+    },
+    {
+      "id": "rb_dgreenhouse",
+      "name": "夜の温室の再建",
+      "need": {
+        "dboard": 2,
+        "dglass": 1,
+        "noil": 1
+      },
+      "unlock": "dgreenhouse",
+      "chapter": 4,
+      "doneText": "夜の温室が直った。影硝子を通した月の光で、夜苔が育ち始めた。"
+    },
+    {
+      "id": "rb_dsign",
+      "name": "作業場の看板",
+      "need": {
+        "dboard": 1,
+        "mlens": 1
+      },
+      "afterRebuild": "rb_dgreenhouse",
+      "chapter": 4,
+      "doneText": "看板が掛かった。月光レンズが、細い月の光を集めて工房名を照らしている。"
+    }
+  ]
+}
+</script>
+
+<script>
+const HERO = 'リメル';
+const DATA = JSON.parse(document.getElementById('gamedata').textContent);
+const SAVE_KEY = 'hikari-yami-ch1-v1';
+const RECIPES_BY_OUT = {};
+DATA.recipes.forEach(r => { RECIPES_BY_OUT[r.out] = r; });
+
+let S = null;
+let toastTimer = null;
+function freshState(){
+  return {
+    day: 1, gathersLeft: DATA.gatherPerDay,
+    inv: {}, crafted: 0, discovered: {},
+    requestsDone: {}, rebuildDone: {},
+    benchUnlocked: false, greenhouseUnlocked: false, greenhouseNew: false, atelierUnlocked: false, ch2Started: false, resonanceSeen: false, ch2Cleared: false, ch3Started: false, ch3IntroSeen: false, ch3Cleared: false, ch4Started: false, ch4Cleared: false, dbenchUnlocked: false, dgreenhouseUnlocked: false, dgreenhouseNew: false, darkStarted: false, boundaryStarted: false, storyImg: '',
+    shopName: '', furnaceSeen: false, chapterCleared: false,
+    lastMade: '', story: ''
+  };
+}
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{ const raw = localStorage.getItem(SAVE_KEY); if(raw){ S = Object.assign(freshState(), JSON.parse(raw)); startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); return; } }catch(e){}
+  S = freshState();
+  S.story = openingText();
+}
+function startCh2IfReady(){
+  if(S.chapterCleared && !S.ch2Started){
+    S.ch2Started = true; window.__ch2New = true;
+    S.story = '――第2章「明かりの塔」。\n看板を掛けた工房に、集落の古老が訪ねてきた。\n「塔の灯が弱っておる。見習いのユノが困っておるよ」\n河原の上流では、星屑のように光る砂が採れるようになったという。仕立工房の再建も、集落からの頼みとして届いている。';
+    save();
+  }
+}
+function startCh4IfReady(){
+  if(S.ch3Cleared && !S.ch4Started){
+    S.ch4Started = true; S.darkStarted = true; window.__ch4New = true;
+    S.storyImg = 'border';
+    S.story = '――第4章「国境を越えて」。\n塔の光を見た旅人の言葉が、頭から離れなかった。行商人ガルドの案内で、' + HERO + 'は国境の峠を越えた。\n闇の側の集落、宵の集落。灯台守の古い作業場を貸してもらえることになったが、集落の人々の視線はまだ遠い。\n「まずは、あの作業場で暮らせるようにするところからだね」世話役のノアが言った。目標は、作業場に看板を掛けること。';
+    save();
+  }
+}
+function startCh3IfReady(){
+  if(S.ch2Cleared && !S.ch3Started){
+    S.ch3Started = true; window.__ch3New = true;
+    save();
+  }
+}
+const SCENES = {
+  furnace: {t: '錬成炉の微かな光', d: '暗い工房の奥。錬成炉の継ぎ目が、ほんの一瞬だけ金色に光る'},
+  sign: {t: '看板と手紙', d: '夕方の工房。新しい看板が掛かり、リメルが育ての親の手紙を読む'},
+  resonance: {t: '炉の共鳴', d: '蒸留器の精油が薄い青を帯び、奥の錬成炉がかすかに共鳴する'},
+  sunlamp: {t: '陽光灯、初めての灯', d: '星粉ガラスのカバーの中で、集められた光が静かに瞬く'},
+  ceremony: {t: '点灯式', d: '夜。明かりの塔のてっぺんに陽光灯が灯り、集落の人々が見上げる'},
+  border: {t: '国境の峠', d: '峠の上から、宵の集落の灯が点々と見える'},
+  selen: {t: '灯台守との出会い', d: '看板が掛かった夕方。作業場の戸口に、灯台守セレンが立っている'}
+};
+function lightFlash(){
+  const f = document.getElementById('flash');
+  f.style.opacity = '1';
+  setTimeout(() => { f.style.opacity = '0'; }, 1000);
+}
+function openingText(){
+  return '――' + HERO + 'は、育ての親から受け継いだ古い工房に着いた。\n'
+    + '屋根は無事だが、作業台は壊れ、部屋は埃っぽい。手紙にはこうあった。\n'
+    + '「まずは暮らせるように直すこと。焦らなくていい」\n'
+    + '工房の奥には、大きな錬成炉があった。' + HERO + 'がそっと触れると、炉の継ぎ目が、ほんの一瞬だけ微かに光った気がした。\n'
+    + '……気のせいだろう。今はまず、明かりと、寝る場所だ。集落の温室も、直せたらきっと喜ばれる。';
+}
+function furnaceText(){
+  if(S.rebuildDone['rb_light']) return '錬成炉は静かに眠っている。ランプの明かりが、炉の継ぎ目を照らしている。';
+  return '古い錬成炉。今は冷たい。' + (S.furnaceSeen ? 'あの微かな光は、まだ理由が分からない。' : '');
+}
+function count(id){ return S.inv[id] || 0; }
+function addInv(id, n){
+  S.inv[id] = count(id) + n;
+  if(S.inv[id] <= 0) delete S.inv[id];
+  if(n > 0 && !S.discovered[id]) S.discovered[id] = S.day;
+}
+function canPay(need){ return Object.entries(need).every(([id,n]) => count(id) >= n); }
+function pay(need){ Object.entries(need).forEach(([id,n]) => addInv(id, -n)); }
+function needText(need){
+  return Object.entries(need).map(([id,n]) => DATA.items[id].name + ' ' + count(id) + '/' + n).join('、');
+}
+function showToast(title, sub){
+  const t = document.getElementById('toast');
+  t.querySelector('.t-title').textContent = title;
+  t.querySelector('.t-sub').textContent = sub || '';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3600);
+}
+function setStory(t){ S.story = t; save(); render(); }
+
+function recipeVisible(r){
+  if(r.chapter === 4 && !S.ch4Started) return false;
+  if(r.chapter === 3 && !S.ch2Cleared) return false;
+  if(r.chapter === 2 && !S.chapterCleared) return false;
+  if(r.lockedUntilRequest && !S.requestsDone[r.lockedUntilRequest]) return false;
+  return true;
+}
+function stationOK(r){ if(r.station === 'bench') return S.benchUnlocked; if(r.station === 'atelier') return S.atelierUnlocked; if(r.station === 'dbench') return S.dbenchUnlocked; return true; }
+function maxCraft(r){
+  if(!stationOK(r)) return 0;
+  let m = Infinity;
+  Object.entries(r.in).forEach(([id,n]) => { m = Math.min(m, Math.floor(count(id) / n)); });
+  return m === Infinity ? 0 : m;
+}
+function doCraft(r, times){
+  const n = Math.min(times, maxCraft(r));
+  if(n <= 0) return;
+  for(let i = 0; i < n; i++){ pay(r.in); addInv(r.out, 1); S.crafted++; }
+  S.lastMade = r.out;
+  if(r.out === 'oil' && S.ch2Started && !S.resonanceSeen){
+    S.resonanceSeen = true; S.storyImg = 'resonance';
+    setStory('蒸留器から精油が落ちる。……その時、工房の奥の錬成炉が、小さく、かすかに共鳴した。\n精油の色が一瞬だけ、いつもと違う薄い青を帯びた気がした。\n――炉は、光の素材のしごとに反応している？');
+    checkCh2Clear();
+    return;
+  }
+  setStory(DATA.items[r.out].name + 'ができた。');
+  checkCh2Clear();
+  showToast(DATA.items[r.out].name + ' ができた' + (n > 1 ? '（' + n + '個）' : ''),
+    Object.keys(r.in).map(id => DATA.items[id].name).join('＋') + ' → ' + DATA.items[r.out].name + '｜' + (r.craftText || ''));
+}
+function doGather(spot, g){
+  if(S.gathersLeft <= 0) return;
+  if(spot === 'greenhouse' && !S.greenhouseUnlocked) return;
+  if(spot === 'dgreenhouse' && !S.dgreenhouseUnlocked) return;
+  S.gathersLeft--;
+  addInv(g.item, g.n);
+  S.lastMade = g.item;
+  showToast('採集できた', DATA.items[g.item].name + '×' + g.n);
+  setStory(DATA.items[g.item].name + 'を' + g.n + '個持ち帰った。'
+    + (S.gathersLeft === 0 ? '\n今日の採集はここまで。' : ''));
+}
+function requestVisible(q){
+  if(q.chapter === 4 && !S.ch4Started) return false;
+  if(q.chapter === 3 && !S.ch2Cleared) return false;
+  if(q.chapter === 2 && !S.chapterCleared) return false;
+  if(q.afterRebuild && !S.rebuildDone[q.afterRebuild]) return false;
+  return true;
+}
+function reqText(q){
+  if(q.id === 'req_marlo_festival' && S.ch3Cleared) return '点灯式は終わったけど、お祝いのパンは今からでも焼けるよ。塔の灯を見ながら、みんなで食べよう。';
+  return q.text;
+}
+function reqDoneText(q){
+  if(q.id === 'req_marlo_festival' && S.ch3Cleared) return '「遅れてきたお祝いも、またいいものね。灯りの下で食べるパンは格別だわ」';
+  return q.doneText;
+}
+function doRequest(q){
+  if(S.requestsDone[q.id] || !canPay(q.need)) return;
+  pay(q.need); S.requestsDone[q.id] = true;
+  showToast('依頼達成', q.giver + '「' + q.title + '」');
+  setStory(reqDoneText(q));
+}
+function rebuildVisible(rb){
+  if(rb.chapter === 4 && !S.ch4Started) return false;
+  if(rb.chapter === 3 && !S.ch2Cleared) return false;
+  if(rb.chapter === 2 && !S.chapterCleared) return false;
+  if(rb.afterRebuild && !S.rebuildDone[rb.afterRebuild]) return false;
+  return true;
+}
+function doRebuild(rb){
+  if(S.rebuildDone[rb.id] || !canPay(rb.need)) return;
+  pay(rb.need); S.rebuildDone[rb.id] = true;
+  showToast('再建が進んだ', rb.name + ' が完成');
+  if(rb.unlock === 'bench'){
+    S.benchUnlocked = true; S.furnaceSeen = true; S.storyImg = 'furnace';
+    setStory(rb.doneText + '\n作業台の向こうで、錬成炉の継ぎ目がまた微かに光った。今度は、気のせいではない気がする。\n――それと、工房に名前を付けよう。看板を出す日が来た。');
+    setTimeout(nameShop, 300);
+    return;
+  }
+  if(rb.unlock === 'greenhouse'){
+    S.greenhouseUnlocked = true; S.greenhouseNew = true;
+    showToast('陽光温室で採集できるようになった', '陽光苔は温室の中で採れる');
+    setStory(rb.doneText + '\n温室の管理人だったハリエットが、目を細めて言った。「あんたが直してくれるなんてね。……お願いがあるの」集落の依頼に、ハリエットの名前が増えた。');
+    return;
+  }
+  if(rb.unlock === 'dbench'){
+    S.dbenchUnlocked = true;
+    setStory(rb.doneText + '\n闇の素材の作法は、光の側と逆のことが多い。陽に当てない、急がない、闇の中で仕上げる。');
+    return;
+  }
+  if(rb.unlock === 'dgreenhouse'){
+    S.dgreenhouseUnlocked = true; S.dgreenhouseNew = true;
+    showToast('夜の温室で採集できるようになった', '夜苔は温室の中で採れる');
+    setStory(rb.doneText + '\n薬房のミラが、温室を覗いて目を細めた。「月の光だけで育てる苔……。あんた、本当に面白い子ね」');
+    return;
+  }
+  if(rb.id === 'rb_dsign'){
+    S.ch4Cleared = true; S.storyImg = 'selen';
+    setStory(rb.doneText + '\n\nその夕方、作業場の戸口に人影があった。境界の灯台守、セレン。看板のレンズを見上げて、長いこと黙っていた。\n「……その炉の使い方、誰に習った」\nセレンの問いに、' + HERO + 'は答えられなかった。育ての親は、炉のことは何も教えてくれなかったから。\n「……いい。作業場の奥に、先代の日誌が残っている。読むといい」\n\n――第4章「国境を越えて」終わり。第5章は「灯台守の工房」。');
+    return;
+  }
+  if(rb.unlock === 'atelier'){
+    S.atelierUnlocked = true;
+    setStory(rb.doneText + '\n仕立工房の前で、集落の古老がリメルの織った布を手に取って言った。\n「……この布の光の移し方。昔、境界の職人と呼ばれた人たちの品に、よう似ておる」\n境界の職人。その言葉を聞いたのは、初めてだった。');
+    checkCh2Clear();
+    return;
+  }
+  if(rb.id === 'rb_sign'){
+    S.chapterCleared = true; S.storyImg = 'sign';
+    setStory(rb.doneText + '\n\nその日の夕方、工房に手紙が届いた。育ての親の字だ。\n「炉は、お前によくなつくはずだ。理由は、いずれ分かる」\n……なつく、とはどういうことだろう。\n\n――第1章「工房と集落」終わり。第2章は「明かりの塔」。');
+    return;
+  }
+  if(rb.id === 'rb_tower'){
+    S.ch3Cleared = true; S.storyImg = 'ceremony';
+    lightFlash();
+    setStory('――点灯式の夜。\n日が沈みきる前、集落の皆が見上げる中で、塔のてっぺんの陽光灯に火が入った。反射板が光を受けて、遠くまでまっすぐに返す。\n集落に、歓声が上がった。' + (S.requestsDone['req_marlo_festival'] ? 'マーロの祝いパンが配られ、' : 'マーロのいつものパンが配られ、') + 'ユノは泣き笑いの顔で塔を見上げている。\n\nその夜遅く、工房の戸を叩く音がした。境界の向こうから来たという旅人が、塔の光を見てやってきたのだ。\n「その灯、闇の素材は混ざっていないのに……なぜ、境界の灯台と同じ色をしているのか」\n\n――第3章「塔の光」終わり。光ルート完結。次は、闇の側の物語。');
+    return;
+  }
+  setStory(rb.doneText);
+  checkCh2Clear();
+}
+function checkCh2Clear(){
+  if(S.ch2Started && !S.ch2Cleared && S.rebuildDone['rb_atelier'] && S.discovered['sunlamp']){
+    S.ch2Cleared = true; S.storyImg = 'sunlamp';
+    setStory('陽光灯が完成した。星粉ガラスのカバーの中で、集められた光が静かに瞬いている。\n塔守の見習いユノが、目を輝かせて言った。「これなら、塔の灯を取り戻せる。……今度は、塔に登りましょう」\n\n――第2章「明かりの塔」終わり。第3章は「塔の光」。');
+    startCh3IfReady();
+  }
+}
+function nameShop(){
+  const n = prompt('工房の名前を付けてください（看板に表示されます）', '');
+  S.shopName = (n && n.trim()) ? n.trim() : '名もない工房';
+  save(); render();
+}
+function doRest(){
+  S.day++; S.gathersLeft = DATA.gatherPerDay;
+  S.storyImg = '';
+  if(S.ch3Started && !S.ch3IntroSeen){
+    S.ch3IntroSeen = true;
+    setStory('――第3章「塔の光」。\nユノと一緒に、塔の点検に登った。灯の台座は傷み、支えの木も古くなっている。\n「陽光灯を据えて、台座を補強して、反射板で光を遠くまで届ける。……点灯式は、集落のみんなで」\n塔の修復が、集落からの頼みとして届いた。');
+    return;
+  }
+  setStory(S.day + '日目。朝の光が工房に入る。今日は何を作ろうか。');
+}
+function doReset(){
+  if(!confirm('最初からやり直しますか？')) return;
+  S = freshState(); S.story = openingText(); save(); render();
+}
+function goalHint(){
+  const goals = [];
+  DATA.rebuild.forEach(rb => { if(rebuildVisible(rb) && !S.rebuildDone[rb.id]) goals.push('再建「' + rb.name + '」：' + needText(rb.need)); });
+  DATA.requests.forEach(q => { if(requestVisible(q) && !S.requestsDone[q.id]) goals.push('依頼「' + q.title + '」：' + needText(q.need)); });
+  if(S.ch2Started && !S.ch2Cleared && !S.discovered['sunlamp']){
+    const r = RECIPES_BY_OUT['sunlamp'];
+    if(r) goals.push('第2章の目標「陽光灯を作る」：' + needText(r.in));
+  }
+  if(goals.length) return '目安 ― ' + goals.join(' ／ ');
+  if(S.ch4Cleared) return '第4章クリア。次は第5章「灯台守の工房」。';
+  return S.ch3Cleared ? '光ルート完結。次は闇ルート。' : (S.ch2Cleared ? '第2章まで達成しました。次は第3章「塔の光」。' : '第1章の目標はすべて達成しました。');
+}
+function gotoRecipe(itemId){
+  const r = RECIPES_BY_OUT[itemId];
+  switchTab('workshop');
+  setTimeout(() => {
+    const el = document.getElementById('recipe-' + (r ? r.id : ''));
+    if(el){ el.scrollIntoView({behavior: 'smooth', block: 'center'}); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 2100); }
+  }, 60);
+}
+function switchTab(tab){
+  document.querySelectorAll('#tabBar button').forEach(x => x.classList.toggle('on', x.dataset.tab === tab));
+  ['workshop','gather','village'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = (t === tab) ? '' : 'none';
+  });
+}
+
+function render(){
+  document.body.dataset.theme = S.boundaryStarted ? 'boundary' : (S.darkStarted ? 'dark' : 'light');
+  const si = document.getElementById('storyImg');
+  if(S.storyImg && SCENES[S.storyImg]){
+    si.style.display = '';
+    si.innerHTML = '【場面絵（仮）】' + SCENES[S.storyImg].t + '<br><span class="cap">' + SCENES[S.storyImg].d + '</span>';
+  } else { si.style.display = 'none'; }
+  document.getElementById('dayLabel').textContent = S.day + '日目';
+  document.getElementById('gatherLabel').textContent = '採集：あと' + S.gathersLeft + '回';
+  document.getElementById('shopLabel').textContent = '工房名：' + (S.shopName || 'まだない');
+  document.getElementById('story').textContent = S.story;
+  document.getElementById('furnaceBox').textContent = furnaceText();
+  document.getElementById('goalHint').textContent = goalHint();
+  document.getElementById('tabGather').textContent = '採集' + ((S.greenhouseNew || S.dgreenhouseNew) ? ' ！' : '');
+  document.getElementById('presetBtn').style.display = (!S.chapterCleared && S.crafted === 0) ? '' : 'none';
+
+  const invBox = document.getElementById('invBox');
+  invBox.innerHTML = '';
+  Object.keys(DATA.items).forEach(id => {
+    const c = count(id);
+    const el = document.createElement('span');
+    el.className = 'chip' + (c === 0 ? ' zero' : '') + (S.lastMade === id && c > 0 ? ' new' : '');
+    el.textContent = DATA.items[id].name + ' ×' + c;
+    invBox.appendChild(el);
+  });
+
+  const zk = document.getElementById('zukanBox');
+  const found = Object.keys(DATA.items).filter(id => S.discovered[id]);
+  zk.innerHTML = '発見 ' + found.length + ' / ' + Object.keys(DATA.items).length + '<br>' +
+    Object.keys(DATA.items).map(id => S.discovered[id]
+      ? '・' + DATA.items[id].name + ' ― ' + DATA.items[id].desc
+      : '<span class="unknown">・？？？</span>').join('<br>');
+
+  const rl = document.getElementById('recipeList');
+  rl.innerHTML = '';
+  let lastGroup = '';
+  DATA.recipes.filter(recipeVisible).forEach(r => {
+    if(r.group !== lastGroup){ lastGroup = r.group; const h = document.createElement('h3'); h.textContent = r.group; rl.appendChild(h); }
+    const row = document.createElement('div'); row.className = 'row'; row.id = 'recipe-' + r.id;
+    const left = document.createElement('div');
+    left.innerHTML = '<div><span class="stage">' + r.stage + '</span><b>' + DATA.items[r.out].name + '</b>' + (r.station === 'bench' && !S.benchUnlocked ? '（作業台の修理が必要）' : '') + (r.station === 'still' ? '（蒸留器）' : '') + (r.station === 'atelier' && !S.atelierUnlocked ? '（仕立工房の再建が必要）' : '') + (r.station === 'dbench' && !S.dbenchUnlocked ? '（作業場の作業台の修理が必要）' : '') + '</div><div class="need">材料：' + needText(r.in) + '</div>';
+    const btns = document.createElement('div'); btns.className = 'btns';
+    const b1 = document.createElement('button'); b1.textContent = '作る'; b1.disabled = maxCraft(r) < 1; b1.onclick = () => doCraft(r, 1);
+    btns.appendChild(b1);
+    const mx = maxCraft(r);
+    if(mx > 1){ const b2 = document.createElement('button'); b2.className = 'sub'; b2.textContent = 'まとめて' + mx + '個'; b2.onclick = () => doCraft(r, mx); btns.appendChild(b2); }
+    row.appendChild(left); row.appendChild(btns); rl.appendChild(row);
+  });
+
+  const mkGather = (boxId, spot) => {
+    const box = document.getElementById(boxId); box.innerHTML = '';
+    DATA.gatherSpots[spot].forEach(g => {
+      const row = document.createElement('div'); row.className = 'row';
+      const left = document.createElement('div');
+      left.innerHTML = '<div>' + DATA.items[g.item].name + ' ×' + g.n + '</div><div class="need">在庫：' + count(g.item) + '個</div>';
+      const btn = document.createElement('button'); btn.textContent = '採集する'; btn.disabled = S.gathersLeft <= 0;
+      btn.onclick = () => doGather(spot, g);
+      row.appendChild(left); row.appendChild(btn); box.appendChild(row);
+    });
+  };
+  mkGather('gatherForest', 'forest');
+  mkGather('gatherRiver', 'river');
+  document.getElementById('shallowsPanel').style.display = S.ch2Started ? '' : 'none';
+  if(S.ch2Started) mkGather('gatherShallows', 'shallows');
+  document.getElementById('darkGather').style.display = S.ch4Started ? '' : 'none';
+  if(S.ch4Started){
+    mkGather('gatherDForest', 'dforest');
+    mkGather('gatherMoonRiver', 'moonriver');
+    const dgh = document.getElementById('dgreenhouseBody');
+    if(S.dgreenhouseUnlocked){
+      dgh.innerHTML = '<p class="hint">夜苔が、月の光を蓄えて静かに育っている。採集1回で2個。</p><div id="gatherDGreenhouse"></div>';
+      mkGather('gatherDGreenhouse', 'dgreenhouse');
+    } else {
+      dgh.innerHTML = '<p class="hint">まだ再建されていない。再建リストから「夜の温室の再建」を進めよう。</p>';
+    }
+  }
+  const gh = document.getElementById('greenhouseBody');
+  if(S.greenhouseUnlocked){
+    gh.innerHTML = '<p class="hint">陽光苔が静かに育っている。採集1回で2個。</p><div id="gatherGreenhouse"></div>';
+    mkGather('gatherGreenhouse', 'greenhouse');
+  } else {
+    gh.innerHTML = '<p class="hint">まだ再建されていない。集落の再建リストから「陽光温室の再建」を進めよう。</p>';
+  }
+
+  const ql = document.getElementById('requestList');
+  ql.innerHTML = '';
+  const buildReqRow = q => {
+    const row = document.createElement('div'); row.className = 'row';
+    const left = document.createElement('div');
+    if(S.requestsDone[q.id]){
+      left.innerHTML = '<div>' + q.giver + '「' + q.title + '」 <span class="done">達成</span></div><div class="need">' + reqDoneText(q) + '</div>';
+    } else {
+      left.innerHTML = '<div>' + q.giver + '「' + q.title + '」</div><div class="need">' + reqText(q) + '</div><div class="need">必要：' + needText(q.need) + '</div>';
+    }
+    row.appendChild(left);
+    if(!S.requestsDone[q.id]){
+      const btns = document.createElement('div'); btns.className = 'btns';
+      const needItem = Object.keys(q.need)[0];
+      const bg = document.createElement('button'); bg.className = 'sub'; bg.textContent = '作り方'; bg.onclick = () => gotoRecipe(needItem);
+      const btn = document.createElement('button'); btn.textContent = '納品する'; btn.disabled = !canPay(q.need); btn.onclick = () => doRequest(q);
+      btns.appendChild(bg); btns.appendChild(btn); row.appendChild(btns);
+    }
+    return row;
+  };
+  const visReq = DATA.requests.filter(requestVisible);
+  const addReqGroup = (title, list) => {
+    if(!list.length) return;
+    const h = document.createElement('h3'); h.textContent = title; ql.appendChild(h);
+    list.forEach(q => ql.appendChild(buildReqRow(q)));
+  };
+  const storyList = visReq.filter(q => q.story);
+  if(storyList.length || (S.ch2Started && !S.ch2Cleared)){
+    const h = document.createElement('h3'); h.textContent = '物語の気配がある依頼'; ql.appendChild(h);
+    storyList.forEach(q => ql.appendChild(buildReqRow(q)));
+    if(S.ch2Started && !S.ch2Cleared){
+      const r = RECIPES_BY_OUT['sunlamp'];
+      if(r){
+        const row = document.createElement('div'); row.className = 'row';
+        const left = document.createElement('div');
+        const done = !!S.discovered['sunlamp'];
+        left.innerHTML = '<div>塔守の見習いユノ「塔の陽光灯」' + (done ? ' <span class="done">達成</span>' : '') + '</div><div class="need">' +
+          (done ? '陽光灯が完成した。塔に据える日が楽しみだ。' : '弱っていく塔の灯を新しくするために、陽光灯を作ってほしい。作ると第2章が進む。') +
+          '</div><div class="need">必要：' + needText(r.in) + '</div>';
+        row.appendChild(left);
+        if(!done){
+          const btns = document.createElement('div'); btns.className = 'btns';
+          const bg = document.createElement('button'); bg.className = 'sub'; bg.textContent = '作り方'; bg.onclick = () => gotoRecipe('sunlamp');
+          btns.appendChild(bg); row.appendChild(btns);
+        }
+        ql.appendChild(row);
+      }
+    }
+  }
+  if(S.ch3Started && !S.rebuildDone['rb_tower']){
+    const rbT = DATA.rebuild.find(x => x.id === 'rb_tower');
+    if(rbT){
+      const row = document.createElement('div'); row.className = 'row';
+      const left = document.createElement('div');
+      left.innerHTML = '<div>塔守の見習いユノ「明かりの塔の修復」</div><div class="need">陽光灯を塔に据え、台座を補強し、反射板を取り付ける。完成すると点灯式が始まる。</div><div class="need">必要：' + needText(rbT.need) + '</div>';
+      row.appendChild(left);
+      const btns = document.createElement('div'); btns.className = 'btns';
+      const bg = document.createElement('button'); bg.className = 'sub'; bg.textContent = '再建を見る'; bg.onclick = () => { switchTab('workshop'); render(); };
+      btns.appendChild(bg); row.appendChild(btns);
+      ql.appendChild(row);
+    }
+  }
+  if(S.ch4Started && !S.rebuildDone['rb_dsign']){
+    const rbS = DATA.rebuild.find(x => x.id === 'rb_dsign');
+    if(rbS){
+      const row = document.createElement('div'); row.className = 'row';
+      const left = document.createElement('div');
+      left.innerHTML = '<div>世話役のノア「古い作業場の看板」</div><div class="need">貸した作業場に、看板を掛けてほしい。掛けると第4章が進む。</div><div class="need">必要：' + needText(rbS.need) + '</div>';
+      row.appendChild(left);
+      const btns = document.createElement('div'); btns.className = 'btns';
+      const bg = document.createElement('button'); bg.className = 'sub'; bg.textContent = '再建を見る'; bg.onclick = () => { switchTab('workshop'); render(); };
+      btns.appendChild(bg); row.appendChild(btns);
+      ql.appendChild(row);
+    }
+  }
+  addReqGroup('集落のいつもの依頼', visReq.filter(q => !q.story));
+
+  const bl = document.getElementById('rebuildList');
+  bl.innerHTML = '';
+  DATA.rebuild.filter(rebuildVisible).forEach(rb => {
+    const row = document.createElement('div'); row.className = 'row';
+    const left = document.createElement('div');
+    left.innerHTML = S.rebuildDone[rb.id]
+      ? '<div>' + rb.name + ' <span class="done">完成</span></div>'
+      : '<div>' + rb.name + '</div><div class="need">必要：' + needText(rb.need) + '</div>';
+    row.appendChild(left);
+    if(!S.rebuildDone[rb.id]){
+      const btn = document.createElement('button');
+      btn.textContent = '設置・修理する'; btn.disabled = !canPay(rb.need);
+      btn.onclick = () => doRebuild(rb);
+      row.appendChild(btn);
+    }
+    bl.appendChild(row);
+  });
+
+  const cb = document.getElementById('clearBox');
+  if(S.ch4Cleared){
+    cb.style.display = 'block';
+    cb.innerHTML = '◆ 第4章クリア ◆<br>' + S.day + '日目。宵の集落の作業場に、看板が掛かりました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
+  } else if(S.ch3Cleared){
+    cb.style.display = 'block';
+    cb.innerHTML = '◆ 光ルート完結 ◆<br>' + S.day + '日目。明かりの塔に光が戻りました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
+  } else if(S.ch2Cleared){
+    cb.style.display = 'block';
+    cb.innerHTML = '◆ 第2章クリア ◆<br>' + S.day + '日目。陽光灯が完成し、塔への準備が整いました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
+  } else if(S.chapterCleared){
+    cb.style.display = 'block';
+    cb.innerHTML = '◆ 第1章クリア ◆<br>集落に工房の灯が戻りました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
+  } else { cb.style.display = 'none'; }
+}
+
+document.querySelectorAll('#tabBar button').forEach(b => {
+  b.onclick = () => {
+    if(b.dataset.tab === 'gather' && (S.greenhouseNew || S.dgreenhouseNew)){ S.greenhouseNew = false; S.dgreenhouseNew = false; save(); }
+    switchTab(b.dataset.tab);
+    render();
+  };
+});
+let restArmed = false, restArmTimer = null;
+function disarmRest(){
+  restArmed = false;
+  const b = document.getElementById('restBtn');
+  b.textContent = '今日は休む（次の日へ）'; b.style.background = '#7a6a4f';
+  clearTimeout(restArmTimer);
+}
+document.getElementById('restBtn').onclick = () => {
+  if(!restArmed){
+    restArmed = true;
+    const b = document.getElementById('restBtn');
+    b.textContent = '本当に今日は休みますか？（もう一度押すと翌日へ）'; b.style.background = '#a34a3a';
+    restArmTimer = setTimeout(disarmRest, 3500);
+    return;
+  }
+  disarmRest(); doRest();
+};
+document.getElementById('resetBtn').onclick = doReset;
+document.getElementById('exportBtn').onclick = () => {
+  const p = document.getElementById('codePanel');
+  p.style.display = '';
+  const ta = document.getElementById('codeArea');
+  ta.value = JSON.stringify({game: 'hikari-yami', save: S});
+  ta.select();
+  p.scrollIntoView({behavior: 'smooth', block: 'center'});
+};
+document.getElementById('copyBtn').onclick = async () => {
+  const ta = document.getElementById('codeArea');
+  ta.select();
+  try{ await navigator.clipboard.writeText(ta.value); showToast('コピーできた', 'メモアプリなどに貼り付けて残してね'); }
+  catch(e){ showToast('長押しでコピーしてね', 'コードが選択された状態になっている'); }
+};
+function extractSave(text){
+  try{ const p = JSON.parse(text); const sv = p.save || p; if(sv && typeof sv.day === 'number' && typeof sv.inv === 'object') return sv; }catch(e){}
+  let depth = 0, start = -1, found = null;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(c === '{'){ if(depth === 0) start = i; depth++; }
+    else if(c === '}'){ depth--; if(depth === 0 && start >= 0){ try{ const p = JSON.parse(text.slice(start, i + 1)); const sv = p.save || p; if(sv && typeof sv.day === 'number' && typeof sv.inv === 'object') found = sv; }catch(e){} start = -1; } }
+  }
+  return found;
+}
+document.getElementById('loadCodeBtn').onclick = () => {
+  const v = document.getElementById('codeArea').value.trim();
+  if(!v){ alert('コードが貼り付けられていません'); return; }
+  const sv = extractSave(v);
+  if(!sv){ alert('読み込めませんでした。コード全体が貼れているか確認してください。'); return; }
+  if(!confirm('このコードで読み込みますか？ 今の進行は上書きされます')) return;
+  S = Object.assign(freshState(), sv);
+  startCh2IfReady(); startCh3IfReady(); startCh4IfReady();
+  save(); render();
+  showToast('セーブを読み込んだ', S.day + '日目から再開');
+};
+document.getElementById('clearCodeBtn').onclick = () => {
+  document.getElementById('codeArea').value = '';
+  document.getElementById('codeArea').focus();
+};
+document.getElementById('presetBtn').onclick = () => {
+  if(!confirm('第1章をクリアした状態から、第2章を始めますか？')) return;
+  const name = prompt('工房の名前を確認してください', '☆アトリエリメル');
+  S = freshState();
+  S.day = 7; S.gathersLeft = DATA.gatherPerDay;
+  S.crafted = 52;
+  S.requestsDone = {req_baker: true, req_merchant: true, req_sunshade: true, req_mossball: true};
+  S.rebuildDone = {rb_bench: true, rb_light: true, rb_bed: true, rb_greenhouse: true, rb_sign: true};
+  S.benchUnlocked = true; S.greenhouseUnlocked = true; S.furnaceSeen = true;
+  S.shopName = (name && name.trim()) ? name.trim() : '☆アトリエリメル';
+  Object.keys(DATA.items).forEach(id => { if(['starsand','starglass','mosspowder','weave','pattern','sunlamp'].indexOf(id) < 0) S.discovered[id] = 1; });
+  S.chapterCleared = true;
+  startCh2IfReady();
+  save(); render();
+  showToast('第2章「明かりの塔」が始まった', '河原の上流で星屑砂が採れる／仕立工房の再建が目標');
+};
+document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
+document.getElementById('importFile').onchange = (ev) => {
+  const f = ev.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+      const sv = parsed.save || parsed;
+      if(typeof sv.day !== 'number' || typeof sv.inv !== 'object') throw new Error('bad');
+      if(!confirm('セーブを読み込みますか？ 今の進行は上書きされます')) return;
+      S = Object.assign(freshState(), sv);
+      save(); render();
+      showToast('セーブを読み込んだ', S.day + '日目から再開');
+    }catch(e){ alert('読み込めませんでした。ファイルを確認してください。'); }
+  };
+  reader.readAsText(f);
+};
+
+load();
+render();
+if(window.__ch2New){ showToast('第2章「明かりの塔」が始まった', '河原の上流で星屑砂が採れる／仕立工房の再建が目標'); window.__ch2New = false; }
+if(window.__ch3New){ showToast('第3章「塔の光」が始まった', '目標：明かりの塔の修復（陽光灯×1・板×3・反射板×2）と点灯式'); window.__ch3New = false; }
+if(window.__ch4New){ showToast('第4章「国境を越えて」が始まった', '目標：作業場の看板を掛ける（影木の板×1・月光レンズ×1）／画面の色が闇側に切り替わった'); window.__ch4New = false; }
+else if(S.ch2Started && !S.ch2Cleared && !S.discovered['sunlamp']){ showToast('第2章の目標は「陽光灯」を作ること', '在庫の「目安」にも材料を表示した'); }
+</script>
+</body>
+</html>
