@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光と闇の工房 第1〜4章（本編試作 v0.8）</title>
+<title>光と闇の工房 第1〜4章（本編試作 v0.8.1）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -98,22 +98,26 @@
   </section>
 
   <section id="tab-gather" style="display:none;">
-    <div class="panel">
+    <div class="panel" id="closedNote" style="display:none;">
+      <h2>国境の峠</h2>
+      <p class="hint">峠は季節の雪で閉ざされている。光の集落へ戻れるのは、境界が開く時。当分の行き来は、ガルドの荷運びだけだ。</p>
+    </div>
+    <div class="panel" id="lightGatherPanels">
       <h2>朝露の森で採集</h2>
       <p class="hint">取りたい素材を選んで採集する。1回で2個手に入る。採集は1日3回まで。</p>
       <div id="gatherForest"></div>
     </div>
-    <div class="panel">
+    <div class="panel" data-lightpanel="1">
       <h2>陽だまりの河原で採集</h2>
       <p class="hint">浅瀬の石は、陽の光をよく含んでいる。1回で2個手に入る。</p>
       <div id="gatherRiver"></div>
     </div>
-    <div class="panel" id="shallowsPanel" style="display:none;">
+    <div class="panel" id="shallowsPanel" data-lightpanel="1" style="display:none;">
       <h2>星屑の浅瀬（河原の上流）</h2>
       <p class="hint">川底の砂が、星の粉のように光っている。1回で2個手に入る。</p>
       <div id="gatherShallows"></div>
     </div>
-    <div class="panel">
+    <div class="panel" data-lightpanel="1">
       <h2>陽光温室</h2>
       <div id="greenhouseBody"></div>
     </div>
@@ -997,10 +1001,10 @@
       "giver": "行商人ガルド",
       "title": "国境の荷",
       "need": {
-        "cloth": 1
+        "dcloth": 1
       },
       "chapter": 4,
-      "text": "向こう側の品を、こっちで欲しがる人がいてね。光布を1つ、譲ってくれないか。行き来できるのは、俺とあんたくらいだ。",
+      "text": "闇の布は、向こう側じゃ滅多に手に入らなくてね。夜布を1つ、譲ってくれないか。峠が閉ざされてる間、行き来できるのは俺の荷運びだけだ。",
       "doneText": "「へへ、助かる。……国境ってのは、品が越えると少しずつ意味が薄れていくもんだ。あんたの工房は、その最先端だな」"
     },
     {
@@ -1178,7 +1182,7 @@ function startCh4IfReady(){
   if(S.ch3Cleared && !S.ch4Started){
     S.ch4Started = true; S.darkStarted = true; window.__ch4New = true;
     S.storyImg = 'border';
-    S.story = '――第4章「国境を越えて」。\n塔の光を見た旅人の言葉が、頭から離れなかった。行商人ガルドの案内で、' + HERO + 'は国境の峠を越えた。\n闇の側の集落、宵の集落。灯台守の古い作業場を貸してもらえることになったが、集落の人々の視線はまだ遠い。\n「まずは、あの作業場で暮らせるようにするところからだね」世話役のノアが言った。目標は、作業場に看板を掛けること。';
+    S.story = '――第4章「国境を越えて」。\n塔の光を見た旅人の言葉が、頭から離れなかった。行商人ガルドの案内で、' + HERO + 'は国境の峠を越えた。\n闇の側の集落、宵の集落。灯台守の古い作業場を貸してもらえることになったが、集落の人々の視線はまだ遠い。\n「まずは、あの作業場で暮らせるようにするところからだね」世話役のノアが言った。目標は、作業場に看板を掛けること。振り返ると、峠はもう雪で閉ざされかけていた。当分、光の集落との行き来はガルドの荷運びだけになる。';
     save();
   }
 }
@@ -1234,7 +1238,9 @@ function showToast(title, sub){
 }
 function setStory(t){ S.story = t; save(); render(); }
 
+function inDarkRoute(){ return S.ch4Started && !S.boundaryStarted; }
 function recipeVisible(r){
+  if(inDarkRoute() && !(r.chapter >= 4)) return false;
   if(r.chapter === 4 && !S.ch4Started) return false;
   if(r.chapter === 3 && !S.ch2Cleared) return false;
   if(r.chapter === 2 && !S.chapterCleared) return false;
@@ -1276,6 +1282,7 @@ function doGather(spot, g){
     + (S.gathersLeft === 0 ? '\n今日の採集はここまで。' : ''));
 }
 function requestVisible(q){
+  if(inDarkRoute() && !(q.chapter >= 4)) return false;
   if(q.chapter === 4 && !S.ch4Started) return false;
   if(q.chapter === 3 && !S.ch2Cleared) return false;
   if(q.chapter === 2 && !S.chapterCleared) return false;
@@ -1297,6 +1304,7 @@ function doRequest(q){
   setStory(reqDoneText(q));
 }
 function rebuildVisible(rb){
+  if(inDarkRoute() && !(rb.chapter >= 4)) return false;
   if(rb.chapter === 4 && !S.ch4Started) return false;
   if(rb.chapter === 3 && !S.ch2Cleared) return false;
   if(rb.chapter === 2 && !S.chapterCleared) return false;
@@ -1470,9 +1478,12 @@ function render(){
   };
   mkGather('gatherForest', 'forest');
   mkGather('gatherRiver', 'river');
-  document.getElementById('shallowsPanel').style.display = S.ch2Started ? '' : 'none';
+  document.getElementById('shallowsPanel').style.display = (S.ch2Started && !inDarkRoute()) ? '' : 'none';
   if(S.ch2Started) mkGather('gatherShallows', 'shallows');
   document.getElementById('darkGather').style.display = S.ch4Started ? '' : 'none';
+  document.getElementById('closedNote').style.display = inDarkRoute() ? '' : 'none';
+  document.querySelectorAll('[data-lightpanel]').forEach(el => { if(el.id !== 'shallowsPanel') el.style.display = inDarkRoute() ? 'none' : ''; });
+  document.getElementById('lightGatherPanels').style.display = inDarkRoute() ? 'none' : '';
   if(S.ch4Started){
     mkGather('gatherDForest', 'dforest');
     mkGather('gatherMoonRiver', 'moonriver');
