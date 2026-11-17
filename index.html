@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光と闇の工房 第1〜4章（本編試作 v0.8.1）</title>
+<title>光と闇の工房 第1〜4章（本編試作 v0.8.2）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -146,6 +146,7 @@
     </div>
   </section>
 
+  <button class="bigbtn" id="restBtn" style="background:#7a6a4f;">今日は休む（次の日へ）</button>
   <div class="panel">
     <h2>在庫</h2>
     <div class="inv" id="invBox"></div>
@@ -153,14 +154,13 @@
   </div>
 
   <div class="panel">
-    <h2>図鑑</h2>
-    <div class="zukan" id="zukanBox"></div>
+    <h2>図鑑 <button id="zukanToggle" style="float:right; padding:4px 12px; border-radius:7px; border:1px solid var(--line); background:var(--card); color:var(--sub); font-size:12px; cursor:pointer;">開く</button></h2>
+    <div class="zukan" id="zukanBox" style="display:none;"></div>
   </div>
 
   <div id="flash"></div>
   <div id="clearBox"></div>
 
-  <button class="bigbtn" id="restBtn" style="background:#7a6a4f;">今日は休む（次の日へ）</button>
   <button class="subbtn" id="presetBtn" style="display:none; border-color:#b8862f; color:#8a6d2f; font-weight:bold;">第1章クリア済みの状態で第2章から始める</button>
   <button class="subbtn" id="exportBtn">セーブコードを表示する</button>
   <button class="subbtn" id="importBtn">セーブを読み込む（ファイル）</button>
@@ -1639,6 +1639,12 @@ document.getElementById('restBtn').onclick = () => {
   disarmRest(); doRest();
 };
 document.getElementById('resetBtn').onclick = doReset;
+document.getElementById('zukanToggle').onclick = () => {
+  const zb = document.getElementById('zukanBox');
+  const open = zb.style.display === 'none';
+  zb.style.display = open ? '' : 'none';
+  document.getElementById('zukanToggle').textContent = open ? '閉じる' : '開く';
+};
 document.getElementById('exportBtn').onclick = () => {
   const p = document.getElementById('codePanel');
   p.style.display = '';
