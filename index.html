@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光と闇の工房 第1〜4章（本編試作 v0.8.2）</title>
+<title>光と闇の工房 第1〜5章（本編試作 v0.9）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -69,7 +69,7 @@
 </head>
 <body>
 <header>
-  <h1>光と闇の工房 <span style="font-size:12px; color:#8a7f63;">― 第1〜4章 工房と集落／明かりの塔／塔の光／国境を越えて ―</span></h1>
+  <h1>光と闇の工房 <span style="font-size:12px; color:#8a7f63;">― 第1〜5章 工房と集落／明かりの塔／塔の光／国境を越えて／灯台守の工房 ―</span></h1>
   <div class="meta">
     <span id="dayLabel">1日目</span>
     <span id="gatherLabel">採集：あと3回</span>
@@ -355,6 +355,22 @@
     "nmosspowder": {
       "name": "夜苔の粉",
       "desc": "夜苔を乾かして挽いた粉。布に月の光を移す。"
+    },
+    "mooncloth": {
+      "name": "月光布",
+      "desc": "夜苔の粉で染めた夜布。月の光を帯びて淡く光る。"
+    },
+    "moonmed": {
+      "name": "月影の薬",
+      "desc": "夜苔の粉と夜の香油の薬。闇の夜の熱を静める。"
+    },
+    "nframe": {
+      "name": "夜鉱の枠",
+      "desc": "夜鉱石を鍛えた枠。月影灯の骨格になる。"
+    },
+    "moonlantern": {
+      "name": "月影灯",
+      "desc": "月光レンズと月光布の大きな灯。灯台に戻すための灯。"
     }
   },
   "gatherPerDay": 3,
@@ -833,6 +849,64 @@
       "chapter": 4,
       "label": "夜苔を乾かして粉に",
       "craftText": "月の光を含んだ粉ができた。布に移せば、夜布が淡く光るはず。"
+    },
+    {
+      "id": "r_moonmed",
+      "out": "moonmed",
+      "in": {
+        "nmosspowder": 1,
+        "noil": 1
+      },
+      "station": "pharmacy",
+      "group": "闇・薬房のしごと",
+      "stage": "二次加工",
+      "chapter": 5,
+      "label": "月影の薬を調合する",
+      "craftText": "粉と油を静かに混ぜる。闇の夜の熱を静める薬ができた。"
+    },
+    {
+      "id": "r_mooncloth",
+      "out": "mooncloth",
+      "in": {
+        "nmosspowder": 1,
+        "dcloth": 1
+      },
+      "station": "pharmacy",
+      "group": "闇・薬房のしごと",
+      "stage": "二次加工",
+      "chapter": 5,
+      "label": "夜布を夜苔の粉で染める",
+      "craftText": "染め上がった布が、月の光を帯びて淡く光る。"
+    },
+    {
+      "id": "r_nframe",
+      "out": "nframe",
+      "in": {
+        "nstone": 2,
+        "npolished": 1
+      },
+      "station": "forge",
+      "group": "闇・鍛冶のしごと",
+      "stage": "二次加工",
+      "chapter": 5,
+      "label": "夜鉱石を鍛えて枠に",
+      "craftText": "鍛冶場に槌の音が響く。冷たい光を返す、丈夫な枠ができた。"
+    },
+    {
+      "id": "r_moonlantern",
+      "out": "moonlantern",
+      "in": {
+        "mlens": 1,
+        "noil": 1,
+        "mooncloth": 1,
+        "nframe": 1
+      },
+      "station": "dbench",
+      "group": "闇の合流",
+      "stage": "合流",
+      "chapter": 5,
+      "label": "月影灯を組み立てる",
+      "craftText": "月光布の灯罩の中で、レンズの光が静かに満ちる。大きな灯ができた。"
     }
   ],
   "requests": [
@@ -1018,6 +1092,54 @@
       "chapter": 4,
       "text": "国境の峠は、夜になると道が消える。月影の小灯りをひとつ、目印に置かせてほしい。",
       "doneText": "「……ありがとう。あの峠は、俺が師匠の元を離れた夜に越えた道でね。灯りがあると、帰る人間も迷わない」"
+    },
+    {
+      "id": "req_mira_moonmed",
+      "giver": "薬房のミラ",
+      "title": "月影の薬",
+      "need": {
+        "moonmed": 1
+      },
+      "chapter": 5,
+      "afterRebuild": "rb_pharmacy",
+      "text": "改修した薬房の、最初のお客さん用にね。月影の薬を1つ、作ってもらえる？",
+      "doneText": "「ありがとう。……先代の薬房も、こうして誰かのために薬を作る場所だったのよ」"
+    },
+    {
+      "id": "req_balt_frame",
+      "story": true,
+      "giver": "鍛冶場のバルト",
+      "title": "鍛冶場の試し打ち",
+      "need": {
+        "nframe": 1
+      },
+      "chapter": 5,
+      "afterRebuild": "rb_forge",
+      "text": "再建した鍛冶場の試し打ちに、夜鉱の枠をひとつ打ってみせてくれ。あんたの腕前を見たい。",
+      "doneText": "「……悪くない。先代の打ち方に似てるな。あの人も、急がず、石の声を聞く人だった」"
+    },
+    {
+      "id": "req_noa_watch",
+      "giver": "世話役のノア",
+      "title": "集落の夜番",
+      "need": {
+        "moonlamp": 1
+      },
+      "chapter": 5,
+      "text": "夜番の詰め所が暗くてね。月影の小灯りを1つ、分けてもらえないかな。",
+      "doneText": "「ありがとう。これで夜番も怖くない。あんた、すっかり集落の職人だね」"
+    },
+    {
+      "id": "req_traveler_beyond",
+      "story": true,
+      "giver": "旅人",
+      "title": "峠のその先",
+      "need": {
+        "moonlamp": 1
+      },
+      "chapter": 5,
+      "text": "峠の目印の灯、ちゃんと灯ってた。……もう1つ、向こう側の分も置きたい。セレンには、内緒で頼む。",
+      "doneText": "「ありがとう。……師匠はさ、弟子が帰る道まで照らしてくれる人だったんだ。今のあの人は、少し違う。だから俺は、置いていくんだと思う」"
     }
   ],
   "rebuild": [
@@ -1141,6 +1263,40 @@
       "afterRebuild": "rb_dgreenhouse",
       "chapter": 4,
       "doneText": "看板が掛かった。月光レンズが、細い月の光を集めて工房名を照らしている。"
+    },
+    {
+      "id": "rb_pharmacy",
+      "name": "月影薬房の改修",
+      "need": {
+        "dboard": 2,
+        "dglass": 1,
+        "noil": 1
+      },
+      "unlock": "pharmacy",
+      "chapter": 5,
+      "doneText": "月影薬房が改修できた。夜苔の粉を使う、薬と染めの仕事ができるようになった。"
+    },
+    {
+      "id": "rb_forge",
+      "name": "夜鉱石の鍛冶場の再建",
+      "need": {
+        "dboard": 2,
+        "nstone": 2,
+        "npolished": 1
+      },
+      "unlock": "forge",
+      "chapter": 5,
+      "doneText": "夜鉱石の鍛冶場が再建できた。親方のバルトが、無言で炉に火を入れた。"
+    },
+    {
+      "id": "rb_bookshelf",
+      "name": "作業場の書棚",
+      "need": {
+        "dboard": 1,
+        "dcloth": 1
+      },
+      "chapter": 5,
+      "doneText": "書棚に先代の日誌を置いた。――日誌の一節。「あの夜のことは、混ぜたことが悪かったのではない。注文に押されて、確かめる手順を飛ばしたことだ」。闇側の古い記録にも、同じことが書かれているという。光と闇、記録は食い違わない。食い違うのは、互いへの疑いだけだ。"
     }
   ]
 }
@@ -1160,14 +1316,14 @@ function freshState(){
     day: 1, gathersLeft: DATA.gatherPerDay,
     inv: {}, crafted: 0, discovered: {},
     requestsDone: {}, rebuildDone: {},
-    benchUnlocked: false, greenhouseUnlocked: false, greenhouseNew: false, atelierUnlocked: false, ch2Started: false, resonanceSeen: false, ch2Cleared: false, ch3Started: false, ch3IntroSeen: false, ch3Cleared: false, ch4Started: false, ch4Cleared: false, dbenchUnlocked: false, dgreenhouseUnlocked: false, dgreenhouseNew: false, darkStarted: false, boundaryStarted: false, storyImg: '',
+    benchUnlocked: false, greenhouseUnlocked: false, greenhouseNew: false, atelierUnlocked: false, ch2Started: false, resonanceSeen: false, ch2Cleared: false, ch3Started: false, ch3IntroSeen: false, ch3Cleared: false, ch4Started: false, ch4Cleared: false, ch5Started: false, ch5Cleared: false, pharmacyUnlocked: false, forgeUnlocked: false, dbenchUnlocked: false, dgreenhouseUnlocked: false, dgreenhouseNew: false, darkStarted: false, boundaryStarted: false, storyImg: '',
     shopName: '', furnaceSeen: false, chapterCleared: false,
     lastMade: '', story: ''
   };
 }
 function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
 function load(){
-  try{ const raw = localStorage.getItem(SAVE_KEY); if(raw){ S = Object.assign(freshState(), JSON.parse(raw)); startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); return; } }catch(e){}
+  try{ const raw = localStorage.getItem(SAVE_KEY); if(raw){ S = Object.assign(freshState(), JSON.parse(raw)); startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); startCh5IfReady(); startCh5IfReady(); return; } }catch(e){}
   S = freshState();
   S.story = openingText();
 }
@@ -1175,6 +1331,14 @@ function startCh2IfReady(){
   if(S.chapterCleared && !S.ch2Started){
     S.ch2Started = true; window.__ch2New = true;
     S.story = '――第2章「明かりの塔」。\n看板を掛けた工房に、集落の古老が訪ねてきた。\n「塔の灯が弱っておる。見習いのユノが困っておるよ」\n河原の上流では、星屑のように光る砂が採れるようになったという。仕立工房の再建も、集落からの頼みとして届いている。';
+    save();
+  }
+}
+function startCh5IfReady(){
+  if(S.ch4Cleared && !S.ch5Started){
+    S.ch5Started = true; window.__ch5New = true;
+    S.storyImg = 'journal';
+    S.story = '――第5章「灯台守の工房」。\n看板が掛かった作業場で、' + HERO + 'は先代の日誌を開いた。最初のページは、作業の記録だった。素材の扱い、炉の温度、確かめる手順。\n読み進めるうちに気づく。この日誌の書き方は、育ての親の仕事の教え方と、どこか似ている。\n目標は、灯台に戻すための大きな灯「月影灯」を作ること。そのために、集落の薬房と鍛冶場を再建する。';
     save();
   }
 }
@@ -1199,7 +1363,9 @@ const SCENES = {
   sunlamp: {t: '陽光灯、初めての灯', d: '星粉ガラスのカバーの中で、集められた光が静かに瞬く'},
   ceremony: {t: '点灯式', d: '夜。明かりの塔のてっぺんに陽光灯が灯り、集落の人々が見上げる'},
   border: {t: '国境の峠', d: '峠の上から、宵の集落の灯が点々と見える'},
-  selen: {t: '灯台守との出会い', d: '看板が掛かった夕方。作業場の戸口に、灯台守セレンが立っている'}
+  selen: {t: '灯台守との出会い', d: '看板が掛かった夕方。作業場の戸口に、灯台守セレンが立っている'},
+  journal: {t: '先代の日誌', d: '作業場の灯りで、古い日誌を開く'},
+  moonlantern: {t: '月影灯、灯台の足元で', d: '灯台の足元。月影灯が初めて灯り、セレンが見上げている'}
 };
 function lightFlash(){
   const f = document.getElementById('flash');
@@ -1240,6 +1406,7 @@ function setStory(t){ S.story = t; save(); render(); }
 
 function inDarkRoute(){ return S.ch4Started && !S.boundaryStarted; }
 function recipeVisible(r){
+  if(r.chapter === 5 && !S.ch5Started) return false;
   if(inDarkRoute() && !(r.chapter >= 4)) return false;
   if(r.chapter === 4 && !S.ch4Started) return false;
   if(r.chapter === 3 && !S.ch2Cleared) return false;
@@ -1247,7 +1414,7 @@ function recipeVisible(r){
   if(r.lockedUntilRequest && !S.requestsDone[r.lockedUntilRequest]) return false;
   return true;
 }
-function stationOK(r){ if(r.station === 'bench') return S.benchUnlocked; if(r.station === 'atelier') return S.atelierUnlocked; if(r.station === 'dbench') return S.dbenchUnlocked; return true; }
+function stationOK(r){ if(r.station === 'bench') return S.benchUnlocked; if(r.station === 'atelier') return S.atelierUnlocked; if(r.station === 'dbench') return S.dbenchUnlocked; if(r.station === 'pharmacy') return S.pharmacyUnlocked; if(r.station === 'forge') return S.forgeUnlocked; return true; }
 function maxCraft(r){
   if(!stationOK(r)) return 0;
   let m = Infinity;
@@ -1262,7 +1429,7 @@ function doCraft(r, times){
   if(r.out === 'oil' && S.ch2Started && !S.resonanceSeen){
     S.resonanceSeen = true; S.storyImg = 'resonance';
     setStory('蒸留器から精油が落ちる。……その時、工房の奥の錬成炉が、小さく、かすかに共鳴した。\n精油の色が一瞬だけ、いつもと違う薄い青を帯びた気がした。\n――炉は、光の素材のしごとに反応している？');
-    checkCh2Clear();
+    checkCh2Clear(); checkCh5Clear();
     return;
   }
   setStory(DATA.items[r.out].name + 'ができた。');
@@ -1282,6 +1449,7 @@ function doGather(spot, g){
     + (S.gathersLeft === 0 ? '\n今日の採集はここまで。' : ''));
 }
 function requestVisible(q){
+  if(q.chapter === 5 && !S.ch5Started) return false;
   if(inDarkRoute() && !(q.chapter >= 4)) return false;
   if(q.chapter === 4 && !S.ch4Started) return false;
   if(q.chapter === 3 && !S.ch2Cleared) return false;
@@ -1304,6 +1472,7 @@ function doRequest(q){
   setStory(reqDoneText(q));
 }
 function rebuildVisible(rb){
+  if(rb.chapter === 5 && !S.ch5Started) return false;
   if(inDarkRoute() && !(rb.chapter >= 4)) return false;
   if(rb.chapter === 4 && !S.ch4Started) return false;
   if(rb.chapter === 3 && !S.ch2Cleared) return false;
@@ -1327,6 +1496,18 @@ function doRebuild(rb){
     setStory(rb.doneText + '\n温室の管理人だったハリエットが、目を細めて言った。「あんたが直してくれるなんてね。……お願いがあるの」集落の依頼に、ハリエットの名前が増えた。');
     return;
   }
+  if(rb.unlock === 'pharmacy'){
+    S.pharmacyUnlocked = true;
+    setStory(rb.doneText + '\nミラが棚に薬草を並べながら言った。「先代の頃の薬房は、光の側の薬も闇の側の薬も、両方置いてたんだって」');
+    checkCh5Clear();
+    return;
+  }
+  if(rb.unlock === 'forge'){
+    S.forgeUnlocked = true;
+    setStory(rb.doneText + '\n「……先代が死んでから、この炉は冷えたままだった」バルトが、ぽつりと言った。');
+    checkCh5Clear();
+    return;
+  }
   if(rb.unlock === 'dbench'){
     S.dbenchUnlocked = true;
     setStory(rb.doneText + '\n闇の素材の作法は、光の側と逆のことが多い。陽に当てない、急がない、闇の中で仕上げる。');
@@ -1346,7 +1527,7 @@ function doRebuild(rb){
   if(rb.unlock === 'atelier'){
     S.atelierUnlocked = true;
     setStory(rb.doneText + '\n仕立工房の前で、集落の古老がリメルの織った布を手に取って言った。\n「……この布の光の移し方。昔、境界の職人と呼ばれた人たちの品に、よう似ておる」\n境界の職人。その言葉を聞いたのは、初めてだった。');
-    checkCh2Clear();
+    checkCh2Clear(); checkCh5Clear();
     return;
   }
   if(rb.id === 'rb_sign'){
@@ -1361,7 +1542,14 @@ function doRebuild(rb){
     return;
   }
   setStory(rb.doneText);
-  checkCh2Clear();
+  checkCh2Clear(); checkCh5Clear();
+}
+function checkCh5Clear(){
+  if(S.ch5Started && !S.ch5Cleared && S.rebuildDone['rb_pharmacy'] && S.rebuildDone['rb_forge'] && S.discovered['moonlantern']){
+    S.ch5Cleared = true; S.storyImg = 'moonlantern';
+    setStory('月影灯を持って、灯台の足元へ。セレンが無言で受け取り、灯を入れた。\n月光布の罩の中で、光が静かに満ちていく。闇の夜に、大きな灯が戻った。\n「……この灯を、灯台に戻したい」セレンが、ぽつりと言った。「先代が守っていた灯台に。あんたの力を、貸してくれるか」\n\n――第5章「灯台守の工房」終わり。第6章は「二つの灯」。');
+    save();
+  }
 }
 function checkCh2Clear(){
   if(S.ch2Started && !S.ch2Cleared && S.rebuildDone['rb_atelier'] && S.discovered['sunlamp']){
@@ -1398,7 +1586,9 @@ function goalHint(){
     if(r) goals.push('第2章の目標「陽光灯を作る」：' + needText(r.in));
   }
   if(goals.length) return '目安 ― ' + goals.join(' ／ ');
-  if(S.ch4Cleared) return '第4章クリア。次は第5章「灯台守の工房」。';
+  if(S.ch5Cleared) return '第5章クリア。次は第6章「二つの灯」。';
+  if(S.ch4Cleared && !S.ch5Started) return '第4章クリア。次は第5章「灯台守の工房」。';
+  if(S.ch4Cleared) return '第5章の目標：月影薬房の改修・鍛冶場の再建・月影灯の製作。';
   return S.ch3Cleared ? '光ルート完結。次は闇ルート。' : (S.ch2Cleared ? '第2章まで達成しました。次は第3章「塔の光」。' : '第1章の目標はすべて達成しました。');
 }
 function gotoRecipe(itemId){
@@ -1456,7 +1646,7 @@ function render(){
     if(r.group !== lastGroup){ lastGroup = r.group; const h = document.createElement('h3'); h.textContent = r.group; rl.appendChild(h); }
     const row = document.createElement('div'); row.className = 'row'; row.id = 'recipe-' + r.id;
     const left = document.createElement('div');
-    left.innerHTML = '<div><span class="stage">' + r.stage + '</span><b>' + DATA.items[r.out].name + '</b>' + (r.station === 'bench' && !S.benchUnlocked ? '（作業台の修理が必要）' : '') + (r.station === 'still' ? '（蒸留器）' : '') + (r.station === 'atelier' && !S.atelierUnlocked ? '（仕立工房の再建が必要）' : '') + (r.station === 'dbench' && !S.dbenchUnlocked ? '（作業場の作業台の修理が必要）' : '') + '</div><div class="need">材料：' + needText(r.in) + '</div>';
+    left.innerHTML = '<div><span class="stage">' + r.stage + '</span><b>' + DATA.items[r.out].name + '</b>' + (r.station === 'bench' && !S.benchUnlocked ? '（作業台の修理が必要）' : '') + (r.station === 'still' ? '（蒸留器）' : '') + (r.station === 'atelier' && !S.atelierUnlocked ? '（仕立工房の再建が必要）' : '') + (r.station === 'dbench' && !S.dbenchUnlocked ? '（作業場の作業台の修理が必要）' : '') + (r.station === 'pharmacy' && !S.pharmacyUnlocked ? '（月影薬房の改修が必要）' : '') + (r.station === 'forge' && !S.forgeUnlocked ? '（鍛冶場の再建が必要）' : '') + '</div><div class="need">材料：' + needText(r.in) + '</div>';
     const btns = document.createElement('div'); btns.className = 'btns';
     const b1 = document.createElement('button'); b1.textContent = '作る'; b1.disabled = maxCraft(r) < 1; b1.onclick = () => doCraft(r, 1);
     btns.appendChild(b1);
@@ -1578,6 +1768,16 @@ function render(){
       ql.appendChild(row);
     }
   }
+  if(S.ch5Started && !S.discovered['moonlantern']){
+    const row = document.createElement('div'); row.className = 'row';
+    const left = document.createElement('div');
+    left.innerHTML = '<div>灯台守セレン「月影灯」</div><div class="need">灯台に戻すための大きな灯。作ると第5章が進む。</div><div class="need">必要：' + needText({mlens: 1, noil: 1, mooncloth: 1, nframe: 1}) + '</div>';
+    row.appendChild(left);
+    const btns = document.createElement('div'); btns.className = 'btns';
+    const bg = document.createElement('button'); bg.className = 'sub'; bg.textContent = '加工を見る'; bg.onclick = () => { switchTab('workshop'); render(); };
+    btns.appendChild(bg); row.appendChild(btns);
+    ql.appendChild(row);
+  }
   addReqGroup('集落のいつもの依頼', visReq.filter(q => !q.story));
 
   const bl = document.getElementById('rebuildList');
@@ -1599,7 +1799,10 @@ function render(){
   });
 
   const cb = document.getElementById('clearBox');
-  if(S.ch4Cleared){
+  if(S.ch5Cleared){
+    cb.style.display = 'block';
+    cb.innerHTML = '◆ 第5章クリア ◆<br>' + S.day + '日目。灯台の足元に、月影灯が灯りました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
+  } else if(S.ch4Cleared){
     cb.style.display = 'block';
     cb.innerHTML = '◆ 第4章クリア ◆<br>' + S.day + '日目。宵の集落の作業場に、看板が掛かりました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
   } else if(S.ch3Cleared){
@@ -1722,6 +1925,7 @@ load();
 render();
 if(window.__ch2New){ showToast('第2章「明かりの塔」が始まった', '河原の上流で星屑砂が採れる／仕立工房の再建が目標'); window.__ch2New = false; }
 if(window.__ch3New){ showToast('第3章「塔の光」が始まった', '目標：明かりの塔の修復（陽光灯×1・板×3・反射板×2）と点灯式'); window.__ch3New = false; }
+if(window.__ch5New){ showToast('第5章「灯台守の工房」が始まった', '目標：月影灯を作る（薬房と鍛冶場の再建が必要）'); window.__ch5New = false; }
 if(window.__ch4New){ showToast('第4章「国境を越えて」が始まった', '目標：作業場の看板を掛ける（影木の板×1・月光レンズ×1）／画面の色が闇側に切り替わった'); window.__ch4New = false; }
 else if(S.ch2Started && !S.ch2Cleared && !S.discovered['sunlamp']){ showToast('第2章の目標は「陽光灯」を作ること', '在庫の「目安」にも材料を表示した'); }
 </script>
