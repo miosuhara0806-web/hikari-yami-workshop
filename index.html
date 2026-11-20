@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光と闇の工房 第1〜5章（本編試作 v0.9）</title>
+<title>光と闇の工房 第1〜5章（本編試作 v0.9.1）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -1323,7 +1323,7 @@ function freshState(){
 }
 function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
 function load(){
-  try{ const raw = localStorage.getItem(SAVE_KEY); if(raw){ S = Object.assign(freshState(), JSON.parse(raw)); startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); startCh5IfReady(); startCh5IfReady(); return; } }catch(e){}
+  try{ const raw = localStorage.getItem(SAVE_KEY); if(raw){ S = Object.assign(freshState(), JSON.parse(raw)); startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); startCh5IfReady(); checkCh5Clear(); return; } }catch(e){}
   S = freshState();
   S.story = openingText();
 }
@@ -1433,7 +1433,7 @@ function doCraft(r, times){
     return;
   }
   setStory(DATA.items[r.out].name + 'ができた。');
-  checkCh2Clear();
+  checkCh2Clear(); checkCh5Clear();
   showToast(DATA.items[r.out].name + ' ができた' + (n > 1 ? '（' + n + '個）' : ''),
     Object.keys(r.in).map(id => DATA.items[id].name).join('＋') + ' → ' + DATA.items[r.out].name + '｜' + (r.craftText || ''));
 }
@@ -1879,7 +1879,7 @@ document.getElementById('loadCodeBtn').onclick = () => {
   if(!sv){ alert('読み込めませんでした。コード全体が貼れているか確認してください。'); return; }
   if(!confirm('このコードで読み込みますか？ 今の進行は上書きされます')) return;
   S = Object.assign(freshState(), sv);
-  startCh2IfReady(); startCh3IfReady(); startCh4IfReady();
+  startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); startCh5IfReady(); checkCh5Clear();
   save(); render();
   showToast('セーブを読み込んだ', S.day + '日目から再開');
 };
