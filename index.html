@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光と闇の工房 第1〜6章（本編試作 v0.10.2）</title>
+<title>光と闇の工房 第1〜7章（本編試作 v0.11）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -65,6 +65,10 @@
   .scene{border:2px dashed var(--accent); border-radius:10px; padding:18px 14px; text-align:center; margin-bottom:12px; background:linear-gradient(180deg, rgba(255,240,190,.45), rgba(255,240,190,0)); color:var(--ink);}
   .scene .cap{font-size:12px; color:var(--sub); line-height:1.7;}
   #flash{position:fixed; inset:0; background:radial-gradient(circle at 50% 32%, rgba(255,244,200,.98), rgba(255,244,200,0) 65%); opacity:0; pointer-events:none; transition:opacity 1.8s ease; z-index:60;}
+  .sideHead{font-weight:bold; color:var(--accent); margin:10px 0 4px; letter-spacing:.1em;}
+  .fbtn{padding:5px 12px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; margin:0 4px 8px 0; font-size:.9em;}
+  .fbtn.on{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .invHead{font-weight:bold; color:var(--accent); margin:10px 0 4px; font-size:.92em;}
 </style>
 </head>
 <body>
@@ -93,6 +97,7 @@
     </div>
     <div class="panel">
       <h2>加工</h2>
+      <div id="recipeFilterBar"><button class="fbtn" data-f="all" onclick="__setRecipeFilter('all')">全部</button><button class="fbtn" data-f="light" onclick="__setRecipeFilter('light')">光</button><button class="fbtn" data-f="dark" onclick="__setRecipeFilter('dark')">闇</button><button class="fbtn" data-f="boundary" onclick="__setRecipeFilter('boundary')">境界</button><button class="fbtn" data-f="craftable" onclick="__setRecipeFilter('craftable')">作れる物だけ</button></div>
       <div id="recipeList"></div>
     </div>
   </section>
@@ -103,6 +108,7 @@
       <p class="hint">峠は季節の雪で閉ざされている。光の集落へ戻れるのは、境界が開く時。当分の行き来は、ガルドの荷運びだけだ。</p>
     </div>
     <div class="panel" id="lightGatherPanels">
+    <div class="sideHead">― 光の側の採集 ―</div>
       <h2>朝露の森で採集</h2>
       <p class="hint">取りたい素材を選んで採集する。1回で2個手に入る。採集は1日3回まで。</p>
       <div id="gatherForest"></div>
@@ -122,6 +128,7 @@
       <div id="greenhouseBody"></div>
     </div>
     <div id="darkGather" style="display:none;">
+    <div class="sideHead">― 闇の側の採集 ―</div>
       <div class="panel">
         <h2>影樹の森で採集（宵の集落のまわり）</h2>
         <p class="hint">黒い木々が、音を吸い込むように立っている。1回で2個手に入る。</p>
@@ -375,6 +382,22 @@
     "nreflector": {
       "name": "磨き夜石の反射板",
       "desc": "磨き夜石を薄く仕上げた反射板。灯台の光を遠くへ返す。"
+    },
+    "usumai": {
+      "name": "薄明材",
+      "desc": "白木の板と影木の板を継いだ、境界の材。光でも闇でもない色をしている"
+    },
+    "hoshi": {
+      "name": "星暮れの布",
+      "desc": "光布と夜布を織り合わせた布。夕暮れの空のような色"
+    },
+    "yoakari": {
+      "name": "宵明かりの香油",
+      "desc": "朝露の精油と夜の香油を合わせた香油。宵の口の明かりのような香り"
+    },
+    "usumilamp": {
+      "name": "薄明の小灯り",
+      "desc": "薄明材と宵明かりの香油の小さな灯。峠の道しるべになる"
     }
   },
   "gatherPerDay": 3,
@@ -924,6 +947,54 @@
       "chapter": 6,
       "label": "磨き夜石を反射板に仕上げる",
       "craftText": "冷たい光をまっすぐ返す、反射板ができた。"
+    },
+    {
+      "id": "r_usumai",
+      "out": "usumai",
+      "in": {
+        "board": 1,
+        "dboard": 1
+      },
+      "group": "境界の混合",
+      "stage": "混合",
+      "station": null,
+      "chapter": 7
+    },
+    {
+      "id": "r_hoshi",
+      "out": "hoshi",
+      "in": {
+        "cloth": 1,
+        "dcloth": 1
+      },
+      "group": "境界の混合",
+      "stage": "混合",
+      "station": "lab",
+      "chapter": 7
+    },
+    {
+      "id": "r_yoakari",
+      "out": "yoakari",
+      "in": {
+        "oil": 1,
+        "noil": 1
+      },
+      "group": "境界の混合",
+      "stage": "混合",
+      "station": "lab",
+      "chapter": 7
+    },
+    {
+      "id": "r_usumilamp",
+      "out": "usumilamp",
+      "in": {
+        "usumai": 1,
+        "yoakari": 1
+      },
+      "group": "境界の混合",
+      "stage": "混合",
+      "station": "lab",
+      "chapter": 7
     }
   ],
   "requests": [
@@ -1203,6 +1274,63 @@
       "chapter": 6,
       "text": "式の夜、峠を越えて戻るつもりだ。帰る道の目印に、月影の小灯りを1つくれないか。……セレンには、まだ言うな。",
       "doneText": "「ありがとう。帰る道に灯があるってのは、いいもんだな。……あの人が、ずっと守ってくれてたんだな」"
+    },
+    {
+      "id": "req_yuno_return",
+      "giver": "塔守のユノ",
+      "title": "おかえりの灯",
+      "need": {
+        "moonlamp": 1
+      },
+      "chapter": 7,
+      "kind": "story",
+      "text": "「おかえり、リメル。……それ、闇の側の灯り？　綺麗だね。塔の見張り台に置かせて。峠の向こうの灯と、並べて見てみたい」",
+      "doneText": "ユノは小灯りを塔の窓辺に置いた。「これで、両側の灯がこの集落から見えるね」"
+    },
+    {
+      "id": "req_garudo_route",
+      "giver": "行商人ガルド",
+      "title": "峠越え定期便",
+      "need": {
+        "usumai": 1
+      },
+      "chapter": 7,
+      "kind": "story",
+      "text": "「峠が開いたからな、定期便を始める。目印の杭に、両側の材を継いだ薄明材を使いたい。雪にも夜にも見える材だ」",
+      "doneText": "「いい材だ。これで峠越えが日常になる」ガルドの定期便が始まった。"
+    },
+    {
+      "id": "req_hari_dark",
+      "giver": "ハリエット",
+      "title": "闇の苔の話",
+      "need": {
+        "nmosspowder": 1
+      },
+      "chapter": 7,
+      "text": "「闇の側にも苔があるんだって？　温室の苔と比べてみたいの。粉にしたのを少し分けて」",
+      "doneText": "ハリエットは二つの苔の粉を見比べて、目を輝かせた。「育ちは真逆でも、同じ苔だねえ」"
+    },
+    {
+      "id": "req_noa_light",
+      "giver": "世話役のノア",
+      "title": "峠の向こうの集落",
+      "need": {
+        "cloth": 1
+      },
+      "chapter": 7,
+      "text": "「宵の集落から頼みだ。光の側の布を見てみたいって。定期便の初荷に載せたい」",
+      "doneText": "光布は定期便の初荷になった。闇の集落で、光の布が評判になっているらしい。"
+    },
+    {
+      "id": "req_elder_lab",
+      "giver": "古老",
+      "title": "薄明の研究室",
+      "need": {},
+      "chapter": 7,
+      "kind": "goal",
+      "goal": "rebuild:rb_lab",
+      "text": "「工房の増築を許そう。両側の素材を同じ棚に置く研究室を。……儂らの若い頃には、当たり前だった光景だ」",
+      "doneText": "薄明の研究室が完成した。"
     }
   ],
   "rebuild": [
@@ -1371,6 +1499,19 @@
       },
       "chapter": 6,
       "doneText": "灯台の修復が終わった。月影灯が、元の場所に戻った。"
+    },
+    {
+      "id": "rb_lab",
+      "name": "薄明の研究室（工房の増築）",
+      "need": {
+        "board": 2,
+        "dboard": 2,
+        "starglass": 1,
+        "dglass": 1
+      },
+      "chapter": 7,
+      "unlock": "lab",
+      "doneText": "工房の奥に、薄明の研究室ができた。光の素材と闇の素材が、同じ棚に並ぶ。錬成炉の継ぎ目が、薄明の色に静かに光った。"
     }
   ]
 }
@@ -1390,16 +1531,31 @@ function freshState(){
     day: 1, gathersLeft: DATA.gatherPerDay,
     inv: {}, crafted: 0, discovered: {},
     requestsDone: {}, rebuildDone: {},
-    benchUnlocked: false, greenhouseUnlocked: false, greenhouseNew: false, atelierUnlocked: false, ch2Started: false, resonanceSeen: false, ch2Cleared: false, ch3Started: false, ch3IntroSeen: false, ch3Cleared: false, ch4Started: false, ch4Cleared: false, ch5Started: false, ch5Cleared: false, ch6Started: false, ch6Cleared: false, pharmacyUnlocked: false, forgeUnlocked: false, dbenchUnlocked: false, dgreenhouseUnlocked: false, dgreenhouseNew: false, darkStarted: false, boundaryStarted: false, storyImg: '',
+    benchUnlocked: false, greenhouseUnlocked: false, greenhouseNew: false, atelierUnlocked: false, ch2Started: false, resonanceSeen: false, ch2Cleared: false, ch3Started: false, ch3IntroSeen: false, ch3Cleared: false, ch4Started: false, ch4Cleared: false, ch5Started: false, ch5Cleared: false, ch6Started: false, ch6Cleared: false, ch7Started: false, ch7Cleared: false, labUnlocked: false, recipeFilter: "all", pharmacyUnlocked: false, forgeUnlocked: false, dbenchUnlocked: false, dgreenhouseUnlocked: false, dgreenhouseNew: false, darkStarted: false, boundaryStarted: false, storyImg: '',
     shopName: '', furnaceSeen: false, chapterCleared: false,
     lastMade: '', story: ''
   };
 }
 function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
 function load(){
-  try{ const raw = localStorage.getItem(SAVE_KEY); if(raw){ S = Object.assign(freshState(), JSON.parse(raw)); startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); startCh5IfReady(); startCh6IfReady(); checkCh5Clear(); return; } }catch(e){}
+  try{ const raw = localStorage.getItem(SAVE_KEY); if(raw){ S = Object.assign(freshState(), JSON.parse(raw)); startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); startCh5IfReady(); startCh6IfReady(); startCh7IfReady(); checkCh5Clear(); checkCh7Clear(); return; } }catch(e){}
   S = freshState();
   S.story = openingText();
+}
+function startCh7IfReady(){
+  if(S.ch6Cleared && !S.ch7Started){
+    S.ch7Started = true; S.boundaryStarted = true; S.storyImg = 'pass';
+    setStory('――春のはじめ。峠の雪が解けた。\n\nガルドの定期便の知らせと一緒に、峠の開通が届いた。リメルは闇の素材の包みを抱えて、久しぶりに光の集落へ帰る。\n塔の上から、ユノが大きく手を振っていた。\n持ち帰った闇の素材に、集落の人々は最初こそ戸惑った顔を見せたが、月影の小灯りの明かりを見て、少しずつ頷き始めた。\n――工房に戻ろう。両側の素材を同じ棚に置く、薄明の研究室を作る。錬成炉が、混合の仕事を待っている。');
+    window.__ch7New = true;
+  }
+}
+function checkCh7Clear(){
+  if(S.ch7Started && !S.ch7Cleared && S.rebuildDone['rb_lab'] && S.discovered['usumai']){
+    S.ch7Cleared = true; S.storyImg = 'lab';
+    setStory('研究室の棚に、両側の素材と、最初の薄明材が並んだ。錬成炉の継ぎ目が、光でも闇でもない、薄明の色に光っている。\nガルドの定期便の第一便が、峠を越えていった。両側の行き来が、日常に戻り始める。\n\n――第7章「峠が開く」終わり。第8章は「破かれたページ」。');
+    showToast('第7章クリア', '薄明の研究室が完成し、峠が開きました');
+    save();
+  }
 }
 function startCh2IfReady(){
   if(S.chapterCleared && !S.ch2Started){
@@ -1449,6 +1605,8 @@ const SCENES = {
   journal: {t: '先代の日誌', d: '作業場の灯りで、古い日誌を開く'},
   lighthouse: {t: '境界の灯台', d: '闇の海に立つ古い灯台。月影灯を戻す場所'},
   relight: {t: '再点灯式', d: '灯台に月影灯が戻り、集落の皆が見上げている'},
+    pass: {t: '雪解けの峠', d: '雪解け水の光る峠道を越えるリメル。向こうに光の集落と明かりの塔が見える'},
+    lab: {t: '薄明の研究室', d: '両側の素材が同じ棚に並ぶ研究室。錬成炉が薄明の色に静かに光る'},
   moonlantern: {t: '月影灯、灯台の足元で', d: '灯台の足元。月影灯が初めて灯り、セレンが見上げている'}
 };
 function lightFlash(){
@@ -1492,6 +1650,7 @@ function inDarkRoute(){ return S.ch4Started && !S.boundaryStarted; }
 function recipeVisible(r){
   if(r.chapter === 5 && !S.ch5Started) return false;
   if(r.chapter === 6 && !S.ch6Started) return false;
+  if(r.chapter === 7 && !S.ch7Started) return false;
   if(inDarkRoute() && !(r.chapter >= 4)) return false;
   if(r.chapter === 4 && !S.ch4Started) return false;
   if(r.chapter === 3 && !S.ch2Cleared) return false;
@@ -1499,7 +1658,7 @@ function recipeVisible(r){
   if(r.lockedUntilRequest && !S.requestsDone[r.lockedUntilRequest]) return false;
   return true;
 }
-function stationOK(r){ if(r.station === 'bench') return S.benchUnlocked; if(r.station === 'atelier') return S.atelierUnlocked; if(r.station === 'dbench') return S.dbenchUnlocked; if(r.station === 'pharmacy') return S.pharmacyUnlocked; if(r.station === 'forge') return S.forgeUnlocked; return true; }
+function stationOK(r){ if(r.station === 'lab') return S.labUnlocked; if(r.station === 'bench') return S.benchUnlocked; if(r.station === 'atelier') return S.atelierUnlocked; if(r.station === 'dbench') return S.dbenchUnlocked; if(r.station === 'pharmacy') return S.pharmacyUnlocked; if(r.station === 'forge') return S.forgeUnlocked; return true; }
 function maxCraft(r){
   if(!stationOK(r)) return 0;
   let m = Infinity;
@@ -1518,7 +1677,7 @@ function doCraft(r, times){
     return;
   }
   setStory(DATA.items[r.out].name + 'ができた。');
-  checkCh2Clear(); checkCh5Clear();
+  checkCh2Clear(); checkCh5Clear(); checkCh7Clear();
   showToast(DATA.items[r.out].name + ' ができた' + (n > 1 ? '（' + n + '個）' : ''),
     Object.keys(r.in).map(id => DATA.items[id].name).join('＋') + ' → ' + DATA.items[r.out].name + '｜' + (r.craftText || ''));
 }
@@ -1536,6 +1695,7 @@ function doGather(spot, g){
 function requestVisible(q){
   if(q.chapter === 5 && !S.ch5Started) return false;
   if(q.chapter === 6 && !S.ch6Started) return false;
+  if(q.chapter === 7 && !S.ch7Started) return false;
   if(inDarkRoute() && !(q.chapter >= 4)) return false;
   if(q.chapter === 4 && !S.ch4Started) return false;
   if(q.chapter === 3 && !S.ch2Cleared) return false;
@@ -1560,6 +1720,7 @@ function doRequest(q){
 function rebuildVisible(rb){
   if(rb.chapter === 5 && !S.ch5Started) return false;
   if(rb.chapter === 6 && !S.ch6Started) return false;
+  if(rb.chapter === 7 && !S.ch7Started) return false;
   if(inDarkRoute() && !(rb.chapter >= 4)) return false;
   if(rb.chapter === 4 && !S.ch4Started) return false;
   if(rb.chapter === 3 && !S.ch2Cleared) return false;
@@ -1593,6 +1754,12 @@ function doRebuild(rb){
     S.forgeUnlocked = true;
     setStory(rb.doneText + '\n「……先代が死んでから、この炉は冷えたままだった」バルトが、ぽつりと言った。');
     checkCh5Clear();
+    return;
+  }
+  if(rb.unlock === 'lab'){
+    S.labUnlocked = true;
+    setStory(rb.doneText + '\nこれで、光と闇を合わせる仕事の続きができる。');
+    checkCh7Clear();
     return;
   }
   if(rb.unlock === 'dbench'){
@@ -1678,6 +1845,8 @@ function goalHint(){
     if(r) goals.push('第2章の目標「陽光灯を作る」：' + needText(r.in));
   }
   if(goals.length) return '目安 ― ' + goals.join(' ／ ');
+  if(S.ch7Cleared) return '第7章クリア。次は第8章「破かれたページ」。';
+  if(S.ch7Started) return '第7章の目標：薄明の研究室の再建と、薄明材を作る。';
   if(S.ch6Cleared) return '闇ルート完結。次は境界編。';
   if(S.ch5Cleared && !S.ch6Started) return '第5章クリア。次は第6章「二つの灯」。';
   if(S.ch5Cleared) return '第6章の目標：灯台の修復（月影灯×1・夜鉱の枠×1・磨き夜石の反射板×2）。';
@@ -1718,12 +1887,26 @@ function render(){
 
   const invBox = document.getElementById('invBox');
   invBox.innerHTML = '';
-  Object.keys(DATA.items).forEach(id => {
-    const c = count(id);
-    const el = document.createElement('span');
-    el.className = 'chip' + (c === 0 ? ' zero' : '') + (S.lastMade === id && c > 0 ? ' new' : '');
-    el.textContent = DATA.items[id].name + ' ×' + c;
-    invBox.appendChild(el);
+  const INV_GROUPS = [
+    ['光の素材', ['birch','flower','cotton','stone','starsand','moss']],
+    ['闇の素材', ['dlog','ngrass','cocoon','nore','nsand','nmoss']],
+    ['境界の素材', ['usumai','hoshi','yoakari']],
+    ['品物', null]
+  ];
+  const grouped = new Set();
+  INV_GROUPS.forEach(([gname, ids]) => {
+    const list = ids || Object.keys(DATA.items).filter(id => !grouped.has(id));
+    if(!list.length) return;
+    const h = document.createElement('div'); h.className = 'invHead'; h.textContent = gname; invBox.appendChild(h);
+    list.forEach(id => {
+      if(!DATA.items[id]) return;
+      grouped.add(id);
+      const c = count(id);
+      const el = document.createElement('span');
+      el.className = 'chip' + (c === 0 ? ' zero' : '') + (S.lastMade === id && c > 0 ? ' new' : '');
+      el.textContent = DATA.items[id].name + ' ×' + c;
+      invBox.appendChild(el);
+    });
   });
 
   const zk = document.getElementById('zukanBox');
@@ -1735,12 +1918,15 @@ function render(){
 
   const rl = document.getElementById('recipeList');
   rl.innerHTML = '';
+  document.querySelectorAll('#recipeFilterBar .fbtn').forEach(b => b.classList.toggle('on', b.dataset.f === (S.recipeFilter || 'all')));
+  const sideOf = r => r.chapter >= 7 ? 'boundary' : (r.chapter >= 4 ? 'dark' : 'light');
+  const filterOK = r => { const f = S.recipeFilter || 'all'; if(f === 'all') return true; if(f === 'craftable') return maxCraft(r) >= 1; return sideOf(r) === f; };
   let lastGroup = '';
-  DATA.recipes.filter(recipeVisible).forEach(r => {
+  DATA.recipes.filter(recipeVisible).filter(filterOK).forEach(r => {
     if(r.group !== lastGroup){ lastGroup = r.group; const h = document.createElement('h3'); h.textContent = r.group; rl.appendChild(h); }
     const row = document.createElement('div'); row.className = 'row'; row.id = 'recipe-' + r.id;
     const left = document.createElement('div');
-    left.innerHTML = '<div><span class="stage">' + r.stage + '</span><b>' + DATA.items[r.out].name + '</b>' + (r.station === 'bench' && !S.benchUnlocked ? '（作業台の修理が必要）' : '') + (r.station === 'still' ? '（蒸留器）' : '') + (r.station === 'atelier' && !S.atelierUnlocked ? '（仕立工房の再建が必要）' : '') + (r.station === 'dbench' && !S.dbenchUnlocked ? '（作業場の作業台の修理が必要）' : '') + (r.station === 'pharmacy' && !S.pharmacyUnlocked ? '（月影薬房の改修が必要）' : '') + (r.station === 'forge' && !S.forgeUnlocked ? '（鍛冶場の再建が必要）' : '') + '</div><div class="need">材料：' + needText(r.in) + '</div>';
+    left.innerHTML = '<div><span class="stage">' + r.stage + '</span><b>' + DATA.items[r.out].name + '</b>' + (r.station === 'bench' && !S.benchUnlocked ? '（作業台の修理が必要）' : '') + (r.station === 'still' ? '（蒸留器）' : '') + (r.station === 'atelier' && !S.atelierUnlocked ? '（仕立工房の再建が必要）' : '') + (r.station === 'dbench' && !S.dbenchUnlocked ? '（作業場の作業台の修理が必要）' : '') + (r.station === 'pharmacy' && !S.pharmacyUnlocked ? '（月影薬房の改修が必要）' : '') + (r.station === 'forge' && !S.forgeUnlocked ? '（鍛冶場の再建が必要）' : '') + (r.station === 'lab' && !S.labUnlocked ? '（薄明の研究室の再建が必要）' : '') + '</div><div class="need">材料：' + needText(r.in) + '</div>';
     const btns = document.createElement('div'); btns.className = 'btns';
     const b1 = document.createElement('button'); b1.textContent = '作る'; b1.disabled = maxCraft(r) < 1; b1.onclick = () => doCraft(r, 1);
     btns.appendChild(b1);
@@ -1904,12 +2090,16 @@ function render(){
 
   const cb = document.getElementById('clearBox');
   const ENDINGS = {
+    ch7: {img: 'lab', text: '研究室の棚に、両側の素材と、最初の薄明材が並んだ。錬成炉の継ぎ目が、光でも闇でもない、薄明の色に光っている。\nガルドの定期便の第一便が、峠を越えていった。両側の行き来が、日常に戻り始める。\n\n――第7章「峠が開く」終わり。第8章は「破かれたページ」。'},
     ch6: {img: 'relight', text: '――再点灯式の夜。\n集落の皆が見上げる中で、灯台の月影灯に火が入った。反射板が光を受け、闇の海へまっすぐに伸ばしていく。\nセレンの隣には、いつの間にか旅人が立っていた。先代の弟子だった彼は、先代の死の後、灯台を離れた人だ。今夜、峠を越えて戻ってきた。帰る道には、彼が置いた小さな灯が並んでいた。\n二人は何も言わず、並んで灯を見ていた。\nその時、国境の向こう、遠い峠の向こうで、小さな光が一度、瞬いた。光の塔の灯だ。誰かが、灯台の復活に気づいて、静かに応えてくれたのだ。\n二つの灯が応え合う空の、峠の上に一瞬だけ、光でも闇でもない、薄明の色が差した。\n\n――第6章「二つの灯」終わり。闇ルート完結。次は、境界編。'},
     ch5: {img: 'moonlantern', text: '月影灯を持って、灯台の足元へ。セレンが無言で受け取り、灯を入れた。\n月光布の罩の中で、光が静かに満ちていく。闇の夜に、大きな灯が戻った。\n「……この灯を、灯台に戻したい」セレンが、ぽつりと言った。「先代が守っていた灯台に。あんたの力を、貸してくれるか」\n\n――第5章「灯台守の工房」終わり。第6章は「二つの灯」。'},
     ch3: {img: 'ceremony', text: '――点灯式の夜。\n日が沈みきる前、集落の皆が見上げる中で、塔のてっぺんの陽光灯に火が入った。反射板が光を受けて、遠くまでまっすぐに返す。\n集落に、歓声が上がった。ユノは泣き笑いの顔で塔を見上げている。\n\nその夜遅く、工房の戸を叩く音がした。境界の向こうから来たという旅人が、塔の光を見てやってきたのだ。\n「その灯、闇の素材は混ざっていないのに……なぜ、境界の灯台と同じ色をしているのか」\n\n――第3章「塔の光」終わり。光ルート完結。次は、闇の側の物語。'}
   };
   window.__replayEnding = (key) => { const e = ENDINGS[key]; if(!e) return; S.storyImg = e.img; setStory(e.text); window.scrollTo({top: 0, behavior: 'smooth'}); };
-  if(S.ch6Cleared){
+  if(S.ch7Cleared){
+    cb.style.display = 'block';
+    cb.innerHTML = '◆ 第7章クリア ◆<br>' + S.day + '日目。峠が開き、薄明の研究室ができました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種' + '<br><button class="sub" style="margin-top:8px; padding:6px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer;" onclick="__replayEnding(\'ch7\')">結末を読み返す</button>';
+  } else if(S.ch6Cleared){
     cb.style.display = 'block';
     cb.innerHTML = '◆ 闇ルート完結 ◆<br>' + S.day + '日目。二つの灯が、国境を挟んで応え合いました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種' + '<br><button class="sub" style="margin-top:8px; padding:6px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer;" onclick="__replayEnding(\'ch6\')">結末を読み返す</button>';
   } else if(S.ch5Cleared){
@@ -1992,10 +2182,11 @@ document.getElementById('loadCodeBtn').onclick = () => {
   if(!sv){ alert('読み込めませんでした。コード全体が貼れているか確認してください。'); return; }
   if(!confirm('このコードで読み込みますか？ 今の進行は上書きされます')) return;
   S = Object.assign(freshState(), sv);
-  startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); startCh5IfReady(); startCh6IfReady(); checkCh5Clear();
+  startCh2IfReady(); startCh3IfReady(); startCh4IfReady(); startCh5IfReady(); startCh6IfReady(); startCh7IfReady(); checkCh5Clear(); checkCh7Clear();
   save(); render();
   showToast('セーブを読み込んだ', S.day + '日目から再開');
 };
+window.__setRecipeFilter = (f) => { S.recipeFilter = f; save(); render(); };
 document.getElementById('clearCodeBtn').onclick = () => {
   document.getElementById('codeArea').value = '';
   document.getElementById('codeArea').focus();
@@ -2039,6 +2230,7 @@ render();
 if(window.__ch2New){ showToast('第2章「明かりの塔」が始まった', '河原の上流で星屑砂が採れる／仕立工房の再建が目標'); window.__ch2New = false; }
 if(window.__ch3New){ showToast('第3章「塔の光」が始まった', '目標：明かりの塔の修復（陽光灯×1・板×3・反射板×2）と点灯式'); window.__ch3New = false; }
 if(window.__ch6New){ showToast('第6章「二つの灯」が始まった', '目標：灯台を修復する（月影灯を元の場所へ）'); window.__ch6New = false; }
+if(window.__ch7New){ showToast('第7章「峠が開く」が始まった', '目標：薄明の研究室を再建して、薄明材を作る／画面の色が薄明に切り替わった'); window.__ch7New = false; }
 if(window.__ch5New){ showToast('第5章「灯台守の工房」が始まった', '目標：月影灯を作る（薬房と鍛冶場の再建が必要）'); window.__ch5New = false; }
 if(window.__ch4New){ showToast('第4章「国境を越えて」が始まった', '目標：作業場の看板を掛ける（影木の板×1・月光レンズ×1）／画面の色が闇側に切り替わった'); window.__ch4New = false; }
 else if(S.ch2Started && !S.ch2Cleared && !S.discovered['sunlamp']){ showToast('第2章の目標は「陽光灯」を作ること', '在庫の「目安」にも材料を表示した'); }
