@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光と闇の工房 第1〜7章（本編試作 v0.11）</title>
+<title>光と闇の工房 第1〜7章（本編試作 v0.11.1）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -1531,7 +1531,7 @@ function freshState(){
     day: 1, gathersLeft: DATA.gatherPerDay,
     inv: {}, crafted: 0, discovered: {},
     requestsDone: {}, rebuildDone: {},
-    benchUnlocked: false, greenhouseUnlocked: false, greenhouseNew: false, atelierUnlocked: false, ch2Started: false, resonanceSeen: false, ch2Cleared: false, ch3Started: false, ch3IntroSeen: false, ch3Cleared: false, ch4Started: false, ch4Cleared: false, ch5Started: false, ch5Cleared: false, ch6Started: false, ch6Cleared: false, ch7Started: false, ch7Cleared: false, labUnlocked: false, recipeFilter: "all", pharmacyUnlocked: false, forgeUnlocked: false, dbenchUnlocked: false, dgreenhouseUnlocked: false, dgreenhouseNew: false, darkStarted: false, boundaryStarted: false, storyImg: '',
+    benchUnlocked: false, greenhouseUnlocked: false, greenhouseNew: false, atelierUnlocked: false, ch2Started: false, resonanceSeen: false, ch2Cleared: false, ch3Started: false, ch3IntroSeen: false, ch3Cleared: false, ch4Started: false, ch4Cleared: false, ch5Started: false, ch5Cleared: false, ch6Started: false, ch6Cleared: false, ch7Started: false, ch7Cleared: false, labUnlocked: false, recipeFilter: "all", showDoneRebuilds: false, showDoneRequests: false, pharmacyUnlocked: false, forgeUnlocked: false, dbenchUnlocked: false, dgreenhouseUnlocked: false, dgreenhouseNew: false, darkStarted: false, boundaryStarted: false, storyImg: '',
     shopName: '', furnaceSeen: false, chapterCleared: false,
     lastMade: '', story: ''
   };
@@ -1993,7 +1993,7 @@ function render(){
     }
     return row;
   };
-  const visReq = DATA.requests.filter(requestVisible);
+  const visReq = DATA.requests.filter(requestVisible).filter(q => S.showDoneRequests || !S.requestsDone[q.id]);
   const addReqGroup = (title, list) => {
     if(!list.length) return;
     const h = document.createElement('h3'); h.textContent = title; ql.appendChild(h);
@@ -2069,10 +2069,17 @@ function render(){
     ql.appendChild(row);
   }
   addReqGroup('集落のいつもの依頼', visReq.filter(q => !q.story));
+  const doneReq = DATA.requests.filter(requestVisible).filter(q => S.requestsDone[q.id]).length;
+  if(doneReq){
+    const t = document.createElement('button'); t.className = 'sub';
+    t.textContent = S.showDoneRequests ? '達成した依頼を畳む' : '達成した依頼を見る（' + doneReq + '件）';
+    t.onclick = () => { S.showDoneRequests = !S.showDoneRequests; save(); render(); };
+    ql.appendChild(t);
+  }
 
   const bl = document.getElementById('rebuildList');
   bl.innerHTML = '';
-  DATA.rebuild.filter(rebuildVisible).forEach(rb => {
+  DATA.rebuild.filter(rebuildVisible).filter(rb => S.showDoneRebuilds || !S.rebuildDone[rb.id]).forEach(rb => {
     const row = document.createElement('div'); row.className = 'row';
     const left = document.createElement('div');
     left.innerHTML = S.rebuildDone[rb.id]
@@ -2087,6 +2094,13 @@ function render(){
     }
     bl.appendChild(row);
   });
+  const doneRb = DATA.rebuild.filter(rebuildVisible).filter(rb => S.rebuildDone[rb.id]).length;
+  if(doneRb){
+    const t = document.createElement('button'); t.className = 'sub';
+    t.textContent = S.showDoneRebuilds ? '完了した再建を畳む' : '完了した再建を見る（' + doneRb + '件）';
+    t.onclick = () => { S.showDoneRebuilds = !S.showDoneRebuilds; save(); render(); };
+    bl.appendChild(t);
+  }
 
   const cb = document.getElementById('clearBox');
   const ENDINGS = {
