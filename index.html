@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光と闇の工房 第1〜6章（本編試作 v0.10.1）</title>
+<title>光と闇の工房 第1〜6章（本編試作 v0.10.2）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -1903,18 +1903,24 @@ function render(){
   });
 
   const cb = document.getElementById('clearBox');
+  const ENDINGS = {
+    ch6: {img: 'relight', text: '――再点灯式の夜。\n集落の皆が見上げる中で、灯台の月影灯に火が入った。反射板が光を受け、闇の海へまっすぐに伸ばしていく。\nセレンの隣には、いつの間にか旅人が立っていた。先代の弟子だった彼は、先代の死の後、灯台を離れた人だ。今夜、峠を越えて戻ってきた。帰る道には、彼が置いた小さな灯が並んでいた。\n二人は何も言わず、並んで灯を見ていた。\nその時、国境の向こう、遠い峠の向こうで、小さな光が一度、瞬いた。光の塔の灯だ。誰かが、灯台の復活に気づいて、静かに応えてくれたのだ。\n二つの灯が応え合う空の、峠の上に一瞬だけ、光でも闇でもない、薄明の色が差した。\n\n――第6章「二つの灯」終わり。闇ルート完結。次は、境界編。'},
+    ch5: {img: 'moonlantern', text: '月影灯を持って、灯台の足元へ。セレンが無言で受け取り、灯を入れた。\n月光布の罩の中で、光が静かに満ちていく。闇の夜に、大きな灯が戻った。\n「……この灯を、灯台に戻したい」セレンが、ぽつりと言った。「先代が守っていた灯台に。あんたの力を、貸してくれるか」\n\n――第5章「灯台守の工房」終わり。第6章は「二つの灯」。'},
+    ch3: {img: 'ceremony', text: '――点灯式の夜。\n日が沈みきる前、集落の皆が見上げる中で、塔のてっぺんの陽光灯に火が入った。反射板が光を受けて、遠くまでまっすぐに返す。\n集落に、歓声が上がった。ユノは泣き笑いの顔で塔を見上げている。\n\nその夜遅く、工房の戸を叩く音がした。境界の向こうから来たという旅人が、塔の光を見てやってきたのだ。\n「その灯、闇の素材は混ざっていないのに……なぜ、境界の灯台と同じ色をしているのか」\n\n――第3章「塔の光」終わり。光ルート完結。次は、闇の側の物語。'}
+  };
+  window.__replayEnding = (key) => { const e = ENDINGS[key]; if(!e) return; S.storyImg = e.img; setStory(e.text); window.scrollTo({top: 0, behavior: 'smooth'}); };
   if(S.ch6Cleared){
     cb.style.display = 'block';
-    cb.innerHTML = '◆ 闇ルート完結 ◆<br>' + S.day + '日目。二つの灯が、国境を挟んで応え合いました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
+    cb.innerHTML = '◆ 闇ルート完結 ◆<br>' + S.day + '日目。二つの灯が、国境を挟んで応え合いました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種' + '<br><button class="sub" style="margin-top:8px; padding:6px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer;" onclick="__replayEnding(\'ch6\')">結末を読み返す</button>';
   } else if(S.ch5Cleared){
     cb.style.display = 'block';
-    cb.innerHTML = '◆ 第5章クリア ◆<br>' + S.day + '日目。灯台の足元に、月影灯が灯りました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
+    cb.innerHTML = '◆ 第5章クリア ◆<br>' + S.day + '日目。灯台の足元に、月影灯が灯りました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種' + '<br><button class="sub" style="margin-top:8px; padding:6px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer;" onclick="__replayEnding(\'ch5\')">結末を読み返す</button>';
   } else if(S.ch4Cleared){
     cb.style.display = 'block';
     cb.innerHTML = '◆ 第4章クリア ◆<br>' + S.day + '日目。宵の集落の作業場に、看板が掛かりました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
   } else if(S.ch3Cleared){
     cb.style.display = 'block';
-    cb.innerHTML = '◆ 光ルート完結 ◆<br>' + S.day + '日目。明かりの塔に光が戻りました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
+    cb.innerHTML = '◆ 光ルート完結 ◆<br>' + S.day + '日目。明かりの塔に光が戻りました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種' + '<br><button class="sub" style="margin-top:8px; padding:6px 14px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer;" onclick="__replayEnding(\'ch3\')">結末を読み返す</button>';
   } else if(S.ch2Cleared){
     cb.style.display = 'block';
     cb.innerHTML = '◆ 第2章クリア ◆<br>' + S.day + '日目。陽光灯が完成し、塔への準備が整いました。<br>作った物の数：' + S.crafted + ' 回／図鑑：' + Object.keys(S.discovered).length + '種';
