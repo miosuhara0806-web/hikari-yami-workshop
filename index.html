@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光と闇の工房 第1〜7章（本編試作 v0.11.1）</title>
+<title>光と闇の工房 第1〜7章（本編試作 v0.11.2）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -1856,11 +1856,18 @@ function goalHint(){
 }
 function gotoRecipe(itemId){
   const r = RECIPES_BY_OUT[itemId];
+  if(!r){
+    switchTab('gather');
+    showToast('採集で手に入る素材', DATA.items[itemId].name + ' はレシピではなく、採集で集める素材です');
+    return;
+  }
+  if(S.recipeFilter && S.recipeFilter !== 'all'){ S.recipeFilter = 'all'; save(); }
   switchTab('workshop');
+  render();
   setTimeout(() => {
-    const el = document.getElementById('recipe-' + (r ? r.id : ''));
+    const el = document.getElementById('recipe-' + r.id);
     if(el){ el.scrollIntoView({behavior: 'smooth', block: 'center'}); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 2100); }
-  }, 60);
+  }, 80);
 }
 function switchTab(tab){
   document.querySelectorAll('#tabBar button').forEach(x => x.classList.toggle('on', x.dataset.tab === tab));
