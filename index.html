@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光と闇の工房 第1〜9章（本編試作 v0.13）</title>
+<title>光と闇の工房 第1〜9章（本編試作 v0.13.1）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -2256,7 +2256,7 @@ function render(){
     }
     return row;
   };
-  const visReq = DATA.requests.filter(requestVisible).filter(q => S.showDoneRequests || !S.requestsDone[q.id]);
+  const visReq = DATA.requests.filter(requestVisible).filter(q => q.kind !== 'goal').filter(q => S.showDoneRequests || !S.requestsDone[q.id]);
   const addReqGroup = (title, list) => {
     if(!list.length) return;
     const h = document.createElement('h3'); h.textContent = title; ql.appendChild(h);
@@ -2329,6 +2329,42 @@ function render(){
     const btns = document.createElement('div'); btns.className = 'btns';
     const bg = document.createElement('button'); bg.className = 'sub'; bg.textContent = '加工を見る'; bg.onclick = () => { switchTab('workshop'); render(); };
     btns.appendChild(bg); row.appendChild(btns);
+    ql.appendChild(row);
+  }
+  if(S.ch7Started && !S.ch7Cleared){
+    const row = document.createElement('div'); row.className = 'row';
+    const left = document.createElement('div');
+    left.innerHTML = '<div>古老「薄明の研究室」</div><div class="need">薄明の研究室を再建し、薄明材を作る。進めると第7章が進む。</div>';
+    row.appendChild(left);
+    const btns = document.createElement('div'); btns.className = 'btns';
+    const bg = document.createElement('button'); bg.className = 'sub'; bg.textContent = '再建を見る'; bg.onclick = () => { switchTab('workshop'); render(); };
+    btns.appendChild(bg); row.appendChild(btns);
+    ql.appendChild(row);
+  }
+  if(S.ch8Started && !S.ch8Cleared){
+    const r8 = RECIPES_BY_OUT['tlantern'];
+    const row = document.createElement('div'); row.className = 'row';
+    const left = document.createElement('div');
+    left.innerHTML = '<div>灯台守セレン「破かれたページの先」</div><div class="need">' + (S.discovered['tlantern'] ? '試作の薄明灯は完成した。' : 'ページの手順で、試作の薄明灯を作る。作ると第8章が進む。') + '</div>' + (r8 && !S.discovered['tlantern'] ? '<div class="need">必要：' + needText(r8.in) + '</div>' : '');
+    row.appendChild(left);
+    if(!S.discovered['tlantern']){
+      const btns = document.createElement('div'); btns.className = 'btns';
+      const bg = document.createElement('button'); bg.className = 'sub'; bg.textContent = '作り方'; bg.onclick = () => gotoRecipe('tlantern');
+      btns.appendChild(bg); row.appendChild(btns);
+    }
+    ql.appendChild(row);
+  }
+  if(S.ch9Started && !S.ch9Cleared){
+    const r9 = RECIPES_BY_OUT['twilamp'];
+    const row = document.createElement('div'); row.className = 'row';
+    const left = document.createElement('div');
+    left.innerHTML = '<div>灯台守セレン「双月の工房」</div><div class="need">' + (S.discovered['twilamp'] ? '薄明の灯は完成した。' : '双月の工房の炉で、薄明の灯を作る。作ると本編が完結する。') + '</div>' + (r9 && !S.discovered['twilamp'] ? '<div class="need">必要：' + needText(r9.in) + '</div>' : '');
+    row.appendChild(left);
+    if(!S.discovered['twilamp']){
+      const btns = document.createElement('div'); btns.className = 'btns';
+      const bg = document.createElement('button'); bg.className = 'sub'; bg.textContent = '作り方'; bg.onclick = () => gotoRecipe('twilamp');
+      btns.appendChild(bg); row.appendChild(btns);
+    }
     ql.appendChild(row);
   }
   addReqGroup('集落のいつもの依頼', visReq.filter(q => !q.story));
