@@ -6,7 +6,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
 <meta name="theme-color" content="#262040">
-<title>光と闇の工房 第1〜9章（本編試作 v0.13.19）</title>
+<title>光と闇の工房 第1〜9章（本編試作 v0.13.20）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -2160,7 +2160,7 @@ function render(){
   if(S.storyImg && SCENES[S.storyImg]){
     si.style.display = '';
     si.innerHTML = SCENE_IMGS[S.storyImg]
-      ? '<img src="' + SCENE_IMGS[S.storyImg] + '" style="width:100%; border-radius:8px; display:block" alt="">' + '<div style="margin-top:6px">【場面絵】' + SCENES[S.storyImg].t + '</div>'
+      ? '<img src="' + SCENE_IMGS[S.storyImg] + '" style="width:100%; border-radius:8px; display:block" alt="">'
       : '【場面絵（仮）】' + SCENES[S.storyImg].t + '<br><span class="cap">' + SCENES[S.storyImg].d + '</span>';
   } else { si.style.display = 'none'; }
   document.getElementById('dayLabel').textContent = S.day + '日目';
