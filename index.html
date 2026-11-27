@@ -6,7 +6,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
 <meta name="theme-color" content="#262040">
-<title>光と闇の工房 第1〜9章（本編試作 v0.13.18）</title>
+<title>光と闇の工房 第1〜9章（本編試作 v0.13.19）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -2183,11 +2183,11 @@ function render(){
   const grouped = new Set();
   INV_GROUPS.forEach(([gname, ids]) => {
     const list = ids || Object.keys(DATA.items).filter(id => !grouped.has(id));
-    if(!list.length) return;
+    const vis = list.filter(id => DATA.items[id] && S.discovered[id]);
+    list.forEach(id => grouped.add(id));
+    if(!vis.length) return;
     const h = document.createElement('div'); h.className = 'invHead'; h.textContent = gname; invBox.appendChild(h);
-    list.forEach(id => {
-      if(!DATA.items[id]) return;
-      grouped.add(id);
+    vis.forEach(id => {
       const c = count(id);
       const el = document.createElement('span');
       el.className = 'chip' + (c === 0 ? ' zero' : '') + (S.lastMade === id && c > 0 ? ' new' : '');
@@ -2206,6 +2206,11 @@ function render(){
   const rl = document.getElementById('recipeList');
   rl.innerHTML = '';
   document.querySelectorAll('#recipeFilterBar .fbtn').forEach(b => b.classList.toggle('on', b.dataset.f === (S.recipeFilter || 'all')));
+  document.querySelectorAll('#recipeFilterBar .fbtn').forEach(b => {
+    if(b.dataset.f === 'dark') b.style.display = S.ch4Started ? '' : 'none';
+    if(b.dataset.f === 'boundary') b.style.display = S.boundaryStarted ? '' : 'none';
+  });
+  if((S.recipeFilter === 'dark' && !S.ch4Started) || (S.recipeFilter === 'boundary' && !S.boundaryStarted)) S.recipeFilter = 'all';
   const sideOf = r => r.chapter >= 7 ? 'boundary' : (r.chapter >= 4 ? 'dark' : 'light');
   const filterOK = r => { const f = S.recipeFilter || 'all'; if(f === 'all') return true; if(f === 'craftable') return maxCraft(r) >= 1; return sideOf(r) === f; };
   let lastGroup = '';
