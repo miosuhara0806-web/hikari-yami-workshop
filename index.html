@@ -6,7 +6,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
 <meta name="theme-color" content="#262040">
-<title>光と闇の工房 第1〜9章（本編試作 v0.13.20）</title>
+<title>光と闇の工房 第1〜9章（本編試作 v0.13.21）</title>
 <style>
   :root{
     --ink:#35322a; --paper:#fcfaf1; --card:#fffefa; --line:#ddd3b8;
@@ -2099,6 +2099,11 @@ function nameShop(){
 function doRest(){
   S.day++; S.gathersLeft = DATA.gatherPerDay;
   S.storyImg = '';
+  if(S.chapterCleared && !S.ch2Started){
+    startCh2IfReady();
+    render();
+    return;
+  }
   if(S.ch3Started && !S.ch3IntroSeen){
     S.ch3IntroSeen = true;
     setStory('――第3章「塔の光」。\nユノと一緒に、塔の点検に登った。灯の台座は傷み、支えの木も古くなっている。\n「陽光灯を据えて、台座を補強して、反射板で光を遠くまで届ける。……点灯式は、集落のみんなで」\n塔の修復が、集落からの頼みとして届いた。');
